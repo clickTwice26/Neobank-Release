@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from flask_login import login_user, logout_user, current_user, login_required
 from bson.objectid import ObjectId
-from models import User
+from models.user import User
+from models.category import Category
 import sys
 import os
 
@@ -60,6 +61,9 @@ def register():
         # Save user to database
         result = mongo.db.users.insert_one(user.to_dict())
         user._id = result.inserted_id
+        
+        # Initialize default categories for new user
+        Category.initialize_user_categories(mongo, user._id)
         
         # Log user in automatically
         login_user(user)
@@ -184,6 +188,9 @@ def google_callback():
         
         result = mongo.db.users.insert_one(new_user.to_dict())
         new_user._id = result.inserted_id
+        
+        # Initialize default categories for new user
+        Category.initialize_user_categories(mongo, new_user._id)
         
         login_user(new_user, remember=True)
         flash(f'Account created successfully! Welcome to NeoBank, {username}!', 'success')

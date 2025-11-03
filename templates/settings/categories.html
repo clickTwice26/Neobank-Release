@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Categories - NeoBank{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex items-center gap-3">
+        <a href="{{ url_for('settings.index') }}" 
+           class="w-10 h-10 rounded-lg bg-white flex items-center justify-center hover:bg-gray-100 transition shadow-sm">
+            <i class='bx bx-arrow-back text-xl text-text-dark'></i>
+        </a>
+        <div>
+            <h1 class="text-2xl font-bold text-text-dark">Manage Categories</h1>
+            <p class="text-text-gray text-sm">Create and organize your transaction categories</p>
+        </div>
+    </div>
+    
+    <!-- Add New Category -->
+    <div class="bg-white rounded-xl p-6 shadow-sm">
+        <h2 class="text-lg font-semibold text-text-dark mb-4">Add New Category</h2>
+        <form method="POST" action="{{ url_for('settings.add_category') }}" class="flex gap-3">
+            <div class="flex-1">
+                <input type="text" name="name" placeholder="Category name" required
+                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-accent outline-none">
+            </div>
+            <div>
+                <select name="transaction_type" required
+                        class="px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-accent outline-none">
+                    <option value="">Select Type</option>
+                    <option value="income">💰 Income</option>
+                    <option value="expense">💸 Expense</option>
+                    <option value="borrow">🤝 Borrow</option>
+                </select>
+            </div>
+            <button type="submit" class="px-6 py-3 bg-accent text-white rounded-lg hover:bg-green-600 transition font-semibold">
+                <i class='bx bx-plus mr-1'></i> Add
+            </button>
+        </form>
+    </div>
+    
+    <!-- Income Categories -->
+    <div class="bg-white rounded-xl p-6 shadow-sm">
+        <h2 class="text-lg font-semibold text-text-dark mb-4 flex items-center gap-2">
+            <i class='bx bx-trending-up text-feedback-green'></i>
+            Income Categories
+        </h2>
+        <div class="space-y-2">
+            {% if categories.income %}
+                {% for category in categories.income %}
+                <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-bg-light transition">
+                    <span class="text-text-dark font-medium">{{ category.name }}</span>
+                    <div class="flex gap-2">
+                        <button onclick="editCategory('{{ category._id | string }}', '{{ category.name }}')" 
+                                class="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition">
+                            <i class='bx bx-edit'></i> Edit
+                        </button>
+                        <form method="POST" action="{{ url_for('settings.delete_category', category_id=category._id | string) }}" 
+                              onsubmit="return confirm('Are you sure you want to delete this category?');" class="inline">
+                            <button type="submit" 
+                                    class="px-3 py-1 text-sm bg-red-50 text-feedback-red rounded-lg hover:bg-red-100 transition">
+                                <i class='bx bx-trash'></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-text-gray text-center py-4">No income categories</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Expense Categories -->
+    <div class="bg-white rounded-xl p-6 shadow-sm">
+        <h2 class="text-lg font-semibold text-text-dark mb-4 flex items-center gap-2">
+            <i class='bx bx-trending-down text-feedback-red'></i>
+            Expense Categories
+        </h2>
+        <div class="space-y-2">
+            {% if categories.expense %}
+                {% for category in categories.expense %}
+                <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-bg-light transition">
+                    <span class="text-text-dark font-medium">{{ category.name }}</span>
+                    <div class="flex gap-2">
+                        <button onclick="editCategory('{{ category._id | string }}', '{{ category.name }}')" 
+                                class="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition">
+                            <i class='bx bx-edit'></i> Edit
+                        </button>
+                        <form method="POST" action="{{ url_for('settings.delete_category', category_id=category._id | string) }}" 
+                              onsubmit="return confirm('Are you sure you want to delete this category?');" class="inline">
+                            <button type="submit" 
+                                    class="px-3 py-1 text-sm bg-red-50 text-feedback-red rounded-lg hover:bg-red-100 transition">
+                                <i class='bx bx-trash'></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-text-gray text-center py-4">No expense categories</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Borrow Categories -->
+    <div class="bg-white rounded-xl p-6 shadow-sm">
+        <h2 class="text-lg font-semibold text-text-dark mb-4 flex items-center gap-2">
+            <i class='bx bx-hand text-blue-600'></i>
+            Borrow Categories
+        </h2>
+        <div class="space-y-2">
+            {% if categories.borrow %}
+                {% for category in categories.borrow %}
+                <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-bg-light transition">
+                    <span class="text-text-dark font-medium">{{ category.name }}</span>
+                    <div class="flex gap-2">
+                        <button onclick="editCategory('{{ category._id | string }}', '{{ category.name }}')" 
+                                class="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition">
+                            <i class='bx bx-edit'></i> Edit
+                        </button>
+                        <form method="POST" action="{{ url_for('settings.delete_category', category_id=category._id | string) }}" 
+                              onsubmit="return confirm('Are you sure you want to delete this category?');" class="inline">
+                            <button type="submit" 
+                                    class="px-3 py-1 text-sm bg-red-50 text-feedback-red rounded-lg hover:bg-red-100 transition">
+                                <i class='bx bx-trash'></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-text-gray text-center py-4">No borrow categories</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+        <h3 class="text-lg font-semibold text-text-dark mb-4">Edit Category</h3>
+        <form id="editForm" method="POST" action="">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-text-gray mb-2">Category Name</label>
+                <input type="text" name="name" id="edit_category_name" required
+                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-accent outline-none">
+            </div>
+            <div class="flex gap-3">
+                <button type="submit" class="flex-1 bg-accent text-white py-3 rounded-lg hover:bg-green-600 transition font-semibold">
+                    Update
+                </button>
+                <button type="button" onclick="closeEditModal()" class="px-6 bg-gray-200 text-text-dark py-3 rounded-lg hover:bg-gray-300 transition">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function editCategory(id, name) {
+        document.getElementById('edit_category_name').value = name;
+        document.getElementById('editForm').action = `/settings/categories/edit/${id}`;
+        document.getElementById('editModal').classList.remove('hidden');
+        document.getElementById('editModal').classList.add('flex');
+    }
+    
+    function closeEditModal() {
+        document.getElementById('editModal').classList.add('hidden');
+        document.getElementById('editModal').classList.remove('flex');
+    }
+    
+    // Close modal on background click
+    document.getElementById('editModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeEditModal();
+        }
+    });
+</script>
+{% endblock %}

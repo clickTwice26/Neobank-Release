@@ -3,12 +3,12 @@
 {% block title %}Dashboard - NeoBank{% endblock %}
 
 {% block content %}
-<div class="space-y-6">
+<div class="space-y-6" style="background-color: #f3f4f6; min-height: 80vh;">
     <!-- Header -->
     <div class="flex justify-between items-center">
         <div>
-            <h1 class="text-2xl font-bold text-text-dark">Dashboard</h1>
-            <p class="text-text-gray text-sm">Track your finances</p>
+            <h1 class="text-2xl font-bold text-text-dark" style="color: #1F2937;">Dashboard</h1>
+            <p class="text-text-gray text-sm" style="color: #6B7280;">Track your finances</p>
         </div>
         
         <!-- Period Filter -->
@@ -25,6 +25,26 @@
                class="px-3 py-1.5 rounded-lg text-sm {% if period == 'year' %}bg-primary text-white{% else %}bg-white text-text-gray{% endif %}">
                 Year
             </a>
+        </div>
+    </div>
+    
+    <!-- Daily Limit Tracker -->
+    <div id="dailyLimitTracker" class="bg-white rounded-xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h3 class="text-lg font-bold text-text-dark">Today's Spending</h3>
+                <p class="text-sm text-text-gray">Track against your daily limit</p>
+            </div>
+            <a href="{{ url_for('settings.daily_limit') }}" class="text-sm text-accent hover:underline flex items-center gap-1">
+                <i class='bx bx-cog'></i>
+                Set Limit
+            </a>
+        </div>
+        
+        <div id="limitContent">
+            <div class="flex justify-center items-center py-4">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+            </div>
         </div>
     </div>
     
@@ -121,4 +141,86 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+    // Load daily limit data
+    function loadDailyLimit() {
+        fetch('/api/daily-spending-check')
+            .then(res => res.json())
+            .then(data => {
+                const limitContent = document.getElementById('limitContent');
+                
+                // Determine color based on status
+                let barColor = 'bg-accent';
+                let textColor = 'text-accent';
+                let bgColor = 'bg-green-50';
+                let borderColor = 'border-green-200';
+                
+                if (data.status === 'exceeded') {
+                    barColor = 'bg-red-600';
+                    textColor = 'text-red-600';
+                    bgColor = 'bg-red-50';
+                    borderColor = 'border-red-200';
+                } else if (data.status === 'warning') {
+                    barColor = 'bg-orange-600';
+                    textColor = 'text-orange-600';
+                    bgColor = 'bg-orange-50';
+                    borderColor = 'border-orange-200';
+                } else if (data.status === 'caution') {
+                    barColor = 'bg-yellow-600';
+                    textColor = 'text-yellow-600';
+                    bgColor = 'bg-yellow-50';
+                    borderColor = 'border-yellow-200';
+                }
+                
+                limitContent.innerHTML = `
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div class="text-center">
+                            <p class="text-sm text-text-gray mb-1">Spent Today</p>
+                            <p class="text-2xl font-bold ${textColor}">৳${data.total_spent.toFixed(2)}</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-sm text-text-gray mb-1">Daily Limit</p>
+                            <p class="text-2xl font-bold text-text-dark">৳${data.daily_limit.toFixed(2)}</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-sm text-text-gray mb-1">Remaining</p>
+                            <p class="text-2xl font-bold ${data.remaining >= 0 ? 'text-accent' : 'text-red-600'}">
+                                ৳${Math.abs(data.remaining).toFixed(2)}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-text-gray">${data.percentage.toFixed(1)}% used</span>
+                            <span class="font-semibold ${textColor}">${data.transaction_count} transactions</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                            <div class="${barColor} h-3 rounded-full transition-all duration-500" style="width: ${Math.min(data.percentage, 100)}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="border ${borderColor} ${bgColor} rounded-lg p-3">
+                        <p class="text-sm ${textColor} font-semibold">${data.message}</p>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                console.error('Error loading daily limit:', error);
+                document.getElementById('limitContent').innerHTML = `
+                    <div class="text-center py-4">
+                        <p class="text-text-gray">Unable to load daily limit data</p>
+                    </div>
+                `;
+            });
+    }
+    
+    // Load on page load
+    loadDailyLimit();
+    
+    // Refresh every 30 seconds
+    setInterval(loadDailyLimit, 30000);
+</script>
+
 {% endblock %}

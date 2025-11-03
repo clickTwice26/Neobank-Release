@@ -119,12 +119,14 @@ def clear_cache(pattern="cache:*"):
         for key in redis_client.scan_iter(pattern):
             redis_client.delete(key)
 
-from routes import transactions, dashboard, api, auth
+from routes import transactions, dashboard, api, auth, settings, analytics
 
 app.register_blueprint(transactions.bp)
 app.register_blueprint(dashboard.bp)
 app.register_blueprint(api.bp)
 app.register_blueprint(auth.bp)
+app.register_blueprint(settings.bp)
+app.register_blueprint(analytics.bp)
 
 @app.route('/')
 def index():
@@ -136,9 +138,9 @@ def index():
 def currency_filter(value):
     """Format number as currency"""
     try:
-        return f"${float(value):,.2f}"
+        return f"৳{float(value):,.2f}"
     except (ValueError, TypeError):
-        return "$0.00"
+        return "৳0.00"
 
 @app.template_filter('date_format')
 def date_format_filter(value, format='%b %d, %Y'):
@@ -150,5 +152,10 @@ def date_format_filter(value, format='%b %d, %Y'):
             return value
     return value.strftime(format) if value else ''
 
+@app.template_filter('string')
+def string_filter(value):
+    """Convert ObjectId or any value to string"""
+    return str(value)
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    app.run(debug=True, host='0.0.0.0', port=6767)

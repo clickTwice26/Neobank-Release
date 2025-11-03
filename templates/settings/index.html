@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - NeoBank{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div>
+        <h1 class="text-2xl font-bold text-text-dark">Settings</h1>
+        <p class="text-text-gray text-sm">Manage your account and preferences</p>
+    </div>
+    
+    <!-- Settings Grid -->
+    <div class="grid md:grid-cols-2 gap-4">
+        <!-- Daily Expense Limit -->
+        <a href="{{ url_for('settings.daily_limit') }}" 
+           class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition group">
+            <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center group-hover:bg-red-200 transition">
+                    <i class='bx bx-dollar-circle text-2xl text-red-600'></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-text-dark mb-1">Daily Expense Limit</h3>
+                    <p class="text-sm text-text-gray">Set and manage your daily spending limit</p>
+                </div>
+                <i class='bx bx-chevron-right text-2xl text-text-gray group-hover:text-accent transition'></i>
+            </div>
+        </a>
+        
+        <!-- Categories -->
+        <a href="{{ url_for('settings.categories') }}" 
+           class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition group">
+            <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-lg bg-accent bg-opacity-10 flex items-center justify-center group-hover:bg-opacity-20 transition">
+                    <i class='bx bx-category text-2xl text-accent'></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-text-dark mb-1">Categories</h3>
+                    <p class="text-sm text-text-gray">Manage your transaction categories</p>
+                </div>
+                <i class='bx bx-chevron-right text-2xl text-text-gray group-hover:text-accent transition'></i>
+            </div>
+        </a>
+        
+        <!-- Profile Settings -->
+        <a href="#" 
+           class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition group opacity-50 cursor-not-allowed">
+            <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-lg bg-primary bg-opacity-10 flex items-center justify-center">
+                    <i class='bx bx-user text-2xl text-primary'></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-text-dark mb-1">Profile Settings</h3>
+                    <p class="text-sm text-text-gray">Update your profile information</p>
+                </div>
+                <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Coming Soon</span>
+            </div>
+        </a>
+        
+        <!-- Account Settings -->
+        <a href="#" 
+           class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition group opacity-50 cursor-not-allowed">
+            <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                    <i class='bx bx-cog text-2xl text-blue-600'></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-text-dark mb-1">Account Settings</h3>
+                    <p class="text-sm text-text-gray">Manage account preferences</p>
+                </div>
+                <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Coming Soon</span>
+            </div>
+        </a>
+        
+        <!-- Security -->
+        <a href="#" 
+           class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition group opacity-50 cursor-not-allowed">
+            <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center">
+                    <i class='bx bx-lock text-2xl text-feedback-red'></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-text-dark mb-1">Security</h3>
+                    <p class="text-sm text-text-gray">Password and security settings</p>
+                </div>
+                <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Coming Soon</span>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}

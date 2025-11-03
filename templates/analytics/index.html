@@ -1,0 +1,501 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - NeoBank{% endblock %}
+
+{% block content %}
+<div class="space-y-6 pb-24">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-text-dark">Analytics</h1>
+            <p class="text-text-gray text-sm">Insights and trends for {{ period_label }}</p>
+        </div>
+        
+        <!-- Period Selector -->
+        <select onchange="window.location.href='?period='+this.value" 
+                class="px-4 py-2 rounded-lg border border-gray-200 text-text-dark bg-white focus:outline-none focus:ring-2 focus:ring-accent">
+            <option value="1month" {% if period == '1month' %}selected{% endif %}>Last Month</option>
+            <option value="3months" {% if period == '3months' %}selected{% endif %}>Last 3 Months</option>
+            <option value="6months" {% if period == '6months' %}selected{% endif %}>Last 6 Months</option>
+            <option value="1year" {% if period == '1year' %}selected{% endif %}>Last Year</option>
+        </select>
+    </div>
+    
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl p-4 shadow-sm">
+            <div class="flex items-center gap-2 mb-2">
+                <i class='bx bx-trending-up text-green-500 text-xl'></i>
+                <p class="text-xs text-text-gray">Income</p>
+            </div>
+            <p class="text-2xl font-bold text-text-dark">{{ total_income | currency }}</p>
+        </div>
+        
+        <div class="bg-white rounded-xl p-4 shadow-sm">
+            <div class="flex items-center gap-2 mb-2">
+                <i class='bx bx-trending-down text-red-500 text-xl'></i>
+                <p class="text-xs text-text-gray">Expenses</p>
+            </div>
+            <p class="text-2xl font-bold text-text-dark">{{ total_expense | currency }}</p>
+        </div>
+        
+        <div class="bg-white rounded-xl p-4 shadow-sm">
+            <div class="flex items-center gap-2 mb-2">
+                <i class='bx bx-wallet text-accent text-xl'></i>
+                <p class="text-xs text-text-gray">Balance</p>
+            </div>
+            <p class="text-2xl font-bold {% if balance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                {{ balance | currency }}
+            </p>
+        </div>
+        
+        <div class="bg-white rounded-xl p-4 shadow-sm">
+            <div class="flex items-center gap-2 mb-2">
+                <i class='bx bx-receipt text-blue-500 text-xl'></i>
+                <p class="text-xs text-text-gray">Transactions</p>
+            </div>
+            <p class="text-2xl font-bold text-text-dark">{{ transaction_count }}</p>
+        </div>
+    </div>
+    
+    <!-- Insights Section -->
+    {% if insights %}
+    <div class="bg-white rounded-xl p-6 shadow-sm">
+        <h2 class="text-lg font-bold text-text-dark mb-4 flex items-center gap-2">
+            <i class='bx bx-bulb text-accent'></i>
+            Smart Insights
+        </h2>
+        <div class="space-y-3">
+            {% for insight in insights %}
+            <div class="flex items-start gap-3 p-3 rounded-lg {% if insight.type == 'warning' %}bg-yellow-50{% elif insight.type == 'success' %}bg-green-50{% else %}bg-blue-50{% endif %}">
+                <i class='bx {{ insight.icon }} text-2xl {% if insight.type == "warning" %}text-yellow-600{% elif insight.type == "success" %}text-green-600{% else %}text-blue-600{% endif %}'></i>
+                <div>
+                    <p class="font-semibold text-text-dark">{{ insight.title }}</p>
+                    <p class="text-sm text-text-gray">{{ insight.message }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Spending Trends Chart -->
+    <div class="bg-white rounded-xl p-6 shadow-sm">
+        <h2 class="text-lg font-bold text-text-dark mb-4 flex items-center gap-2">
+            <i class='bx bx-line-chart text-accent'></i>
+            Income vs Expenses Trend
+        </h2>
+        <canvas id="trendsChart" height="100"></canvas>
+    </div>
+    
+    <!-- Category Breakdown -->
+    <div class="grid md:grid-cols-2 gap-6">
+        <!-- Expense Categories -->
+        <div class="bg-white rounded-xl p-6 shadow-sm">
+            <h2 class="text-lg font-bold text-text-dark mb-4 flex items-center gap-2">
+                <i class='bx bx-pie-chart-alt-2 text-accent'></i>
+                Expense Categories
+            </h2>
+            <canvas id="expenseCategoriesChart" height="200"></canvas>
+        </div>
+        
+        <!-- Income Categories -->
+        <div class="bg-white rounded-xl p-6 shadow-sm">
+            <h2 class="text-lg font-bold text-text-dark mb-4 flex items-center gap-2">
+                <i class='bx bx-pie-chart-alt text-accent'></i>
+                Income Categories
+            </h2>
+            <canvas id="incomeCategoriesChart" height="200"></canvas>
+        </div>
+    </div>
+    
+    <!-- Daily Spending Pattern -->
+    <div class="bg-white rounded-xl p-6 shadow-sm">
+        <h2 class="text-lg font-bold text-text-dark mb-4 flex items-center gap-2">
+            <i class='bx bx-bar-chart text-accent'></i>
+            Average Spending by Day
+        </h2>
+        <canvas id="dayPatternChart" height="100"></canvas>
+    </div>
+    
+    <!-- Predictions -->
+    <div class="bg-gradient-to-br from-accent to-green-600 rounded-xl p-6 shadow-sm text-white">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+            <i class='bx bx-crystal-ball'></i>
+            Next Month Prediction
+        </h2>
+        <div id="predictions" class="space-y-4">
+            <div class="flex justify-center items-center py-4">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top Categories List -->
+    <div class="bg-white rounded-xl p-6 shadow-sm">
+        <h2 class="text-lg font-bold text-text-dark mb-4 flex items-center gap-2">
+            <i class='bx bx-list-ul text-accent'></i>
+            Top Spending Categories
+        </h2>
+        <div class="space-y-3">
+            {% for category, amount in top_categories %}
+            <div class="flex items-center justify-between p-3 bg-bg-light rounded-lg">
+                <div class="flex items-center gap-3">
+                    <div class="w-2 h-2 rounded-full bg-accent"></div>
+                    <p class="font-semibold text-text-dark">{{ category }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-text-dark">{{ amount | currency }}</p>
+                    <p class="text-xs text-text-gray">
+                        {{ (amount / total_expense * 100) | round(1) }}% of expenses
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Daily Averages -->
+    <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-text-gray">Avg. Daily Income</p>
+                <i class='bx bx-trending-up text-green-500 text-2xl'></i>
+            </div>
+            <p class="text-3xl font-bold text-text-dark">{{ avg_daily_income | currency }}</p>
+            <p class="text-xs text-text-gray mt-2">Based on {{ period_label.lower() }}</p>
+        </div>
+        
+        <div class="bg-white rounded-xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-text-gray">Avg. Daily Expense</p>
+                <i class='bx bx-trending-down text-red-500 text-2xl'></i>
+            </div>
+            <p class="text-3xl font-bold text-text-dark">{{ avg_daily_expense | currency }}</p>
+            <p class="text-xs text-text-gray mt-2">Based on {{ period_label.lower() }}</p>
+        </div>
+    </div>
+    
+    <!-- Monthly Breakdown Table -->
+    <div class="bg-white rounded-xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-bold text-text-dark flex items-center gap-2">
+                <i class='bx bx-table text-accent'></i>
+                Monthly Breakdown
+            </h2>
+        </div>
+        
+        <div id="monthlyTableContainer">
+            <div class="flex justify-center items-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+    // Wait for Chart.js to load
+    window.addEventListener('load', function() {
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js failed to load');
+            return;
+        }
+        
+        const period = '{{ period }}';
+        
+        // Chart.js default configuration
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#6B7280';
+        
+        // Trends Chart
+        fetch(`/api/analytics/trends?period=${period}`)
+            .then(res => res.json())
+            .then(data => {
+                console.log('Trends data received:', data);
+                
+                const canvas = document.getElementById('trendsChart');
+                if (!canvas) {
+                    console.error('Canvas element not found');
+                    return;
+                }
+                
+                new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Income',
+                            data: data.income,
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }, {
+                            label: 'Expenses',
+                            data: data.expense,
+                            borderColor: '#EF4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '৳' + value.toFixed(0);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error loading trends chart:', error);
+            });
+    
+    // Expense Categories Chart
+    fetch(`/api/analytics/categories?period=${period}&type=expense`)
+        .then(res => res.json())
+        .then(data => {
+            const colors = [
+                '#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6',
+                '#EC4899', '#14B8A6', '#F97316', '#06B6D4', '#84CC16'
+            ];
+            
+            new Chart(document.getElementById('expenseCategoriesChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        data: data.data,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        });
+    
+    // Income Categories Chart
+    fetch(`/api/analytics/categories?period=${period}&type=income`)
+        .then(res => res.json())
+        .then(data => {
+            const colors = [
+                '#10B981', '#14B8A6', '#06B6D4', '#3B82F6', '#8B5CF6',
+                '#EC4899', '#F59E0B', '#EF4444', '#F97316', '#84CC16'
+            ];
+            
+            new Chart(document.getElementById('incomeCategoriesChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        data: data.data,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        });
+    
+    // Day Pattern Chart
+    fetch('/api/analytics/spending-pattern')
+        .then(res => res.json())
+        .then(data => {
+            new Chart(document.getElementById('dayPatternChart'), {
+                type: 'bar',
+                data: {
+                    labels: data.day_of_week.labels,
+                    datasets: [{
+                        label: 'Avg. Spending',
+                        data: data.day_of_week.data,
+                        backgroundColor: '#10B981',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '৳' + value.toFixed(0);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    
+    // Predictions
+    fetch('/api/analytics/predictions')
+        .then(res => res.json())
+        .then(data => {
+            const predictionsDiv = document.getElementById('predictions');
+            
+            if (data.message) {
+                predictionsDiv.innerHTML = `
+                    <div class="text-center py-4">
+                        <p class="text-white opacity-90">${data.message}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const trendIcon = data.trend === 'increasing' ? 'bx-trending-up' : 
+                            data.trend === 'decreasing' ? 'bx-trending-down' : 'bx-minus';
+            
+            predictionsDiv.innerHTML = `
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div class="text-center">
+                        <p class="text-sm opacity-90">Expected Income</p>
+                        <p class="text-2xl font-bold">৳${data.next_month.income.toFixed(2)}</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm opacity-90">Expected Expenses</p>
+                        <p class="text-2xl font-bold">৳${data.next_month.expense.toFixed(2)}</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm opacity-90">Projected Savings</p>
+                        <p class="text-2xl font-bold">৳${data.next_month.savings.toFixed(2)}</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-center gap-2 mb-4">
+                    <i class='bx ${trendIcon} text-2xl'></i>
+                    <p class="text-lg">Spending trend: <span class="font-bold">${data.trend}</span></p>
+                </div>
+                
+                ${data.recommendations.map(rec => `
+                    <div class="bg-white bg-opacity-20 rounded-lg p-3 mb-2">
+                        <p class="text-sm">${rec.message}</p>
+                    </div>
+                `).join('')}
+            `;
+        });
+    
+    // Monthly Breakdown Table
+    fetch(`/api/analytics/monthly-breakdown?period=${period}`)
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById('monthlyTableContainer');
+            
+            if (!data.breakdown || data.breakdown.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class='bx bx-calendar-x text-6xl text-text-gray opacity-30'></i>
+                        <p class="text-text-gray mt-2">No transaction data available</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-gray-200">
+                                <th class="text-left py-3 px-4 font-semibold text-text-dark">Month</th>
+                                <th class="text-right py-3 px-4 font-semibold text-green-600">Income</th>
+                                <th class="text-right py-3 px-4 font-semibold text-red-600">Expenses</th>
+                                <th class="text-right py-3 px-4 font-semibold text-blue-600">Borrow</th>
+                                <th class="text-right py-3 px-4 font-semibold text-accent">Net</th>
+                                <th class="text-right py-3 px-4 font-semibold text-text-gray">Savings %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.breakdown.map((item, index) => `
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
+                                    <td class="py-3 px-4 font-medium text-text-dark">${item.month}</td>
+                                    <td class="py-3 px-4 text-right text-green-600 font-semibold">৳${item.income.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                    <td class="py-3 px-4 text-right text-red-600 font-semibold">৳${item.expense.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                    <td class="py-3 px-4 text-right text-blue-600 font-semibold">৳${item.borrow.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                    <td class="py-3 px-4 text-right font-bold ${item.net >= 0 ? 'text-accent' : 'text-red-600'}">
+                                        ৳${item.net.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                    </td>
+                                    <td class="py-3 px-4 text-right text-text-gray">
+                                        <span class="inline-flex items-center gap-1">
+                                            ${item.savings_rate >= 0 ? 
+                                                `<i class='bx bx-trending-up text-green-500'></i>` : 
+                                                `<i class='bx bx-trending-down text-red-500'></i>`
+                                            }
+                                            ${Math.abs(item.savings_rate).toFixed(1)}%
+                                        </span>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                        <tfoot class="bg-gray-50 font-bold">
+                            <tr class="border-t-2 border-gray-300">
+                                <td class="py-4 px-4 text-text-dark">Total</td>
+                                <td class="py-4 px-4 text-right text-green-600">৳${data.totals.income.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td class="py-4 px-4 text-right text-red-600">৳${data.totals.expense.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td class="py-4 px-4 text-right text-blue-600">৳${data.totals.borrow.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td class="py-4 px-4 text-right ${data.totals.net >= 0 ? 'text-accent' : 'text-red-600'}">
+                                    ৳${data.totals.net.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                </td>
+                                <td class="py-4 px-4 text-right text-text-gray">
+                                    ${((data.totals.net / data.totals.income) * 100).toFixed(1)}%
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            `;
+        })
+        .catch(error => {
+            console.error('Error loading monthly breakdown:', error);
+            document.getElementById('monthlyTableContainer').innerHTML = `
+                <div class="text-center py-8">
+                    <p class="text-red-600">Failed to load monthly breakdown</p>
+                </div>
+            `;
+        });
+    
+    }); // End of window load event
+</script>
+{% endblock %}

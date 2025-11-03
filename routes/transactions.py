@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from bson.objectid import ObjectId
 from datetime import datetime
 from models import Transaction
+from models.category import Category
 import sys
 import os
 
@@ -45,25 +46,42 @@ def add():
     
     user_id = str(current_user._id)
     
-    user_id = session['user_id']
-    
     if request.method == 'POST':
+        # Get borrow-specific fields if transaction type is borrow
+        borrower_name = request.form.get('borrower_name') if request.form.get('type') == 'borrow' else None
+        repayment_date = None
+        if request.form.get('type') == 'borrow' and request.form.get('repayment_date'):
+            repayment_date = datetime.fromisoformat(request.form.get('repayment_date'))
+        
         transaction = Transaction(
             amount=request.form.get('amount'),
             category=request.form.get('category'),
             description=request.form.get('description'),
-            transaction_type=request.form.get('transaction_type'),
-            date=datetime.fromisoformat(request.form.get('date'))
+            transaction_type=request.form.get('type'),
+            date=datetime.fromisoformat(request.form.get('date')),
+            product_name=request.form.get('product_name'),
+            borrower_name=borrower_name,
+            repayment_date=repayment_date
         )
         
+        # Get user's categories for validation
+        categories = Category.get_user_categories(mongo, user_id)
+        
         # Validate transaction
-        errors = transaction.validate()
+        errors = transaction.validate(categories)
         if errors:
             for error in errors:
                 flash(error, 'error')
+            # Get distinct product names for autocomplete
+            product_names = mongo.db.transactions.distinct('product_name', {
+                'user_id': user_id,
+                'product_name': {'$exists': True, '$ne': None, '$ne': ''}
+            })
             return render_template('transactions/form.html',
                                  transaction=None,
-                                 categories=Transaction.CATEGORIES)
+                                 categories=categories,
+                                 product_names=product_names,
+                                 today=datetime.now().strftime('%Y-%m-%d'))
         
         # Add user_id to transaction
         transaction_data = transaction.to_dict()
@@ -80,7 +98,8 @@ def add():
     
     return render_template('transactions/form.html',
                          transaction=None,
-                         categories=Transaction.CATEGORIES)
+                         categories=Transaction.CATEGORIES,
+                         today=datetime.now().strftime('%Y-%m-%d'))
 
 @bp.route('/edit/<transaction_id>', methods=['GET', 'POST'])
 @login_required
@@ -100,23 +119,43 @@ def edit(transaction_id):
         return redirect(url_for('transactions.list_transactions'))
     
     if request.method == 'POST':
+        # Get borrow-specific fields if transaction type is borrow
+        borrower_name = request.form.get('borrower_name') if request.form.get('transaction_type') == 'borrow' else None
+        repayment_date = None
+        if request.form.get('transaction_type') == 'borrow' and request.form.get('repayment_date'):
+            repayment_date = datetime.fromisoformat(request.form.get('repayment_date'))
+        
         updated_transaction = Transaction(
             amount=request.form.get('amount'),
             category=request.form.get('category'),
             description=request.form.get('description'),
             transaction_type=request.form.get('transaction_type'),
             date=datetime.fromisoformat(request.form.get('date')),
-            _id=ObjectId(transaction_id)
+            _id=ObjectId(transaction_id),
+            product_name=request.form.get('product_name'),
+            borrower_name=borrower_name,
+            repayment_date=repayment_date
         )
         
+        # Get user's categories for validation
+        categories = Category.get_user_categories(mongo, user_id)
+        
         # Validate transaction
-        errors = updated_transaction.validate()
+        errors = updated_transaction.validate(categories)
         if errors:
             for error in errors:
                 flash(error, 'error')
+            categories = Category.get_user_categories(mongo, user_id)
+            # Get distinct product names for autocomplete
+            product_names = mongo.db.transactions.distinct('product_name', {
+                'user_id': user_id,
+                'product_name': {'$exists': True, '$ne': None, '$ne': ''}
+            })
             return render_template('transactions/form.html',
                                  transaction=transaction_data,
-                                 categories=Transaction.CATEGORIES)
+                                 categories=categories,
+                                 product_names=product_names,
+                                 today=datetime.now().strftime('%Y-%m-%d'))
         
         # Update in MongoDB
         update_data = updated_transaction.to_dict()
@@ -132,9 +171,20 @@ def edit(transaction_id):
         flash('Transaction updated successfully!', 'success')
         return redirect(url_for('transactions.list_transactions'))
     
+    # Get user's categories for the form
+    categories = Category.get_user_categories(mongo, user_id)
+    
+    # Get distinct product names for autocomplete
+    product_names = mongo.db.transactions.distinct('product_name', {
+        'user_id': user_id,
+        'product_name': {'$exists': True, '$ne': None, '$ne': ''}
+    })
+    
     return render_template('transactions/form.html',
                          transaction=transaction_data,
-                         categories=Transaction.CATEGORIES)
+                         categories=categories,
+                         product_names=product_names,
+                         today=datetime.now().strftime('%Y-%m-%d'))
 
 @bp.route('/delete/<transaction_id>', methods=['POST'])
 @login_required

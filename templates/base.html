@@ -43,43 +43,88 @@
         
         .floating-label-input {
             position: relative;
+            margin-bottom: 8px;
         }
         
         .floating-label-input input,
         .floating-label-input select,
         .floating-label-input textarea {
             width: 100%;
-            padding: 16px 12px 8px;
+            padding: 24px 12px 8px;
             border: 2px solid #E5E7EB;
             border-radius: 8px;
             outline: none;
             transition: border-color 0.3s;
+            background-color: white;
+            font-size: 16px;
+        }
+        
+        .floating-label-input select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%2310B981' d='M4.427 6.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 6H4.604a.25.25 0 00-.177.427z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 40px;
+            cursor: pointer;
+        }
+        
+        .floating-label-input select option {
+            padding: 12px;
+            font-size: 16px;
+            background-color: white;
+            color: #1F2937;
+        }
+        
+        .floating-label-input select option:hover,
+        .floating-label-input select option:checked {
+            background-color: #10B981;
+            color: white;
+        }
+        
+        .floating-label-input select option[disabled] {
+            color: #9CA3AF;
+        }
+        
+        /* Custom select styling for better visibility */
+        .floating-label-input select[data-placeholder="true"] {
+            color: #9CA3AF;
+        }
+        
+        .floating-label-input select:not([data-placeholder="true"]) {
+            color: #1F2937;
+        }
+        
+        /* Make sure label is always on top for selects */
+        .floating-label-input select ~ label {
+            top: 8px !important;
+            font-size: 12px !important;
         }
         
         .floating-label-input input:focus,
         .floating-label-input select:focus,
         .floating-label-input textarea:focus {
-            border-color: #0A2540;
+            border-color: #10B981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
         }
         
         .floating-label-input label {
             position: absolute;
-            top: 16px;
+            top: 8px;
             left: 12px;
             color: #6B7280;
+            font-size: 12px;
+            font-weight: 500;
             transition: all 0.3s;
             pointer-events: none;
+            background-color: white;
+            padding: 0 4px;
         }
         
         .floating-label-input input:focus + label,
-        .floating-label-input input:not(:placeholder-shown) + label,
         .floating-label-input select:focus + label,
-        .floating-label-input select:not([value=""]) + label,
-        .floating-label-input textarea:focus + label,
-        .floating-label-input textarea:not(:placeholder-shown) + label {
-            top: 4px;
-            font-size: 12px;
-            color: #0A2540;
+        .floating-label-input textarea:focus + label {
+            color: #10B981;
         }
         
         .fab-button {
@@ -137,33 +182,122 @@
         {% endif %}
     {% endwith %}
     
-    <!-- Main Content -->
-    <div class="container mx-auto px-4 py-6 max-w-6xl">
-        <!-- User Info Bar (only show when logged in) -->
-        {% if current_user.is_authenticated %}
-        <div class="bg-white rounded-xl shadow-sm p-4 mb-6 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                {% if current_user.profile_picture %}
-                <img src="{{ current_user.profile_picture }}" alt="{{ current_user.username }}" 
-                     class="w-10 h-10 rounded-full">
-                {% else %}
-                <div class="w-10 h-10 rounded-full bg-accent flex items-center justify-center">
-                    <i class='bx bx-user text-white text-xl'></i>
+    <!-- Navigation Drawer Overlay -->
+    {% if current_user.is_authenticated %}
+    <div id="drawerOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden" onclick="toggleDrawer()"></div>
+    
+    <!-- Navigation Drawer -->
+    <div id="navDrawer" class="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300">
+        <div class="flex flex-col h-full">
+            <!-- Drawer Header -->
+            <div class="bg-primary p-6 text-white">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold">Settings</h2>
+                    <button onclick="toggleDrawer()" class="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition">
+                        <i class='bx bx-x text-2xl'></i>
+                    </button>
                 </div>
-                {% endif %}
-                <div>
-                    <p class="text-text-dark font-semibold">{{ current_user.username }}</p>
-                    <p class="text-text-gray text-xs">{{ current_user.email }}</p>
+                <div class="flex items-center gap-3">
+                    {% if current_user.profile_picture %}
+                    <img src="{{ current_user.profile_picture }}" alt="{{ current_user.username }}" 
+                         class="w-16 h-16 rounded-full border-2 border-white/30">
+                    {% else %}
+                    <div class="w-16 h-16 rounded-full bg-accent flex items-center justify-center border-2 border-white/30">
+                        <i class='bx bx-user text-white text-3xl'></i>
+                    </div>
+                    {% endif %}
+                    <div class="flex-1">
+                        <p class="font-semibold text-lg">{{ current_user.username }}</p>
+                        <p class="text-white/70 text-sm">{{ current_user.email }}</p>
+                    </div>
                 </div>
             </div>
-            <a href="{{ url_for('auth.logout') }}" 
-               class="flex items-center gap-2 px-4 py-2 text-feedback-red hover:bg-red-50 rounded-lg transition">
-                <i class='bx bx-log-out text-xl'></i>
-                <span class="text-sm font-semibold">Logout</span>
-            </a>
+            
+            <!-- Drawer Menu Items -->
+            <div class="flex-1 overflow-y-auto p-4">
+                <div class="space-y-2 px-4">
+                    <!-- Profile Settings -->
+                    <a href="{{ url_for('settings.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-bg-light transition group">
+                        <i class='bx bx-user text-2xl text-text-gray group-hover:text-accent'></i>
+                        <div>
+                            <p class="font-semibold text-text-dark">Profile Settings</p>
+                            <p class="text-xs text-text-gray">Manage your profile</p>
+                        </div>
+                    </a>
+                    
+                    <!-- Categories -->
+                    <a href="{{ url_for('settings.categories') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-bg-light transition group">
+                        <i class='bx bx-category text-2xl text-text-gray group-hover:text-accent'></i>
+                        <div>
+                            <p class="font-semibold text-text-dark">Categories</p>
+                            <p class="text-xs text-text-gray">Manage transaction categories</p>
+                        </div>
+                    </a>
+                    
+                    <!-- Account Settings -->
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-bg-light transition group">
+                        <i class='bx bx-cog text-2xl text-text-gray group-hover:text-accent'></i>
+                        <div>
+                            <p class="font-semibold text-text-dark">Account Settings</p>
+                            <p class="text-xs text-text-gray">Configure account preferences</p>
+                        </div>
+                    </a>
+                    
+                    <!-- Notifications -->
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-bg-light transition group">
+                        <i class='bx bx-bell text-2xl text-text-gray group-hover:text-accent'></i>
+                        <div>
+                            <p class="font-semibold text-text-dark">Notifications</p>
+                            <p class="text-xs text-text-gray">Configure notification preferences</p>
+                        </div>
+                    </a>
+                    
+                    <!-- Security -->
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-bg-light transition group">
+                        <i class='bx bx-lock text-2xl text-text-gray group-hover:text-accent'></i>
+                        <div>
+                            <p class="font-semibold text-text-dark">Security</p>
+                            <p class="text-xs text-text-gray">Password and security settings</p>
+                        </div>
+                    </a>
+                    
+                    <!-- Divider -->
+                    <div class="border-t border-gray-200 my-4"></div>
+                    
+                    <!-- Help & Support -->
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-bg-light transition group">
+                        <i class='bx bx-help-circle text-2xl text-text-gray group-hover:text-accent'></i>
+                        <div>
+                            <p class="font-semibold text-text-dark">Help & Support</p>
+                            <p class="text-xs text-text-gray">Get help and support</p>
+                        </div>
+                    </a>
+                    
+                    <!-- About -->
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-bg-light transition group">
+                        <i class='bx bx-info-circle text-2xl text-text-gray group-hover:text-accent'></i>
+                        <div>
+                            <p class="font-semibold text-text-dark">About NeoBank</p>
+                            <p class="text-xs text-text-gray">App version and information</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Drawer Footer - Logout -->
+            <div class="p-4 border-t border-gray-200">
+                <a href="{{ url_for('auth.logout') }}" 
+                   class="flex items-center justify-center gap-2 w-full px-4 py-3 bg-feedback-red text-white rounded-lg hover:bg-red-600 transition font-semibold">
+                    <i class='bx bx-log-out text-xl'></i>
+                    <span>Logout</span>
+                </a>
+            </div>
         </div>
-        {% endif %}
-        
+    </div>
+    {% endif %}
+    
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-6 max-w-6xl min-h-screen">
         {% block content %}{% endblock %}
     </div>
     
@@ -186,14 +320,14 @@
                 <i class='bx bx-list-ul text-2xl'></i>
                 <span class="text-xs">Transactions</span>
             </a>
-            <a href="{{ url_for('transactions.list_transactions', type='expense') }}" class="flex flex-col items-center gap-1 px-4 py-2 {% if request.args.get('type') == 'expense' %}text-accent{% else %}text-text-gray{% endif %}">
-                <i class='bx bx-wallet text-2xl'></i>
-                <span class="text-xs">Expenses</span>
+            <a href="{{ url_for('analytics.index') }}" class="flex flex-col items-center gap-1 px-4 py-2 {% if request.endpoint == 'analytics.index' %}text-accent{% else %}text-text-gray{% endif %}">
+                <i class='bx bx-bar-chart-alt-2 text-2xl'></i>
+                <span class="text-xs">Analytics</span>
             </a>
-            <a href="{{ url_for('transactions.list_transactions', type='income') }}" class="flex flex-col items-center gap-1 px-4 py-2 {% if request.args.get('type') == 'income' %}text-accent{% else %}text-text-gray{% endif %}">
-                <i class='bx bx-money text-2xl'></i>
-                <span class="text-xs">Income</span>
-            </a>
+            <button onclick="toggleDrawer()" class="flex flex-col items-center gap-1 px-4 py-2 text-text-gray hover:text-accent transition">
+                <i class='bx bx-user-circle text-2xl'></i>
+                <span class="text-xs">Settings</span>
+            </button>
         </div>
     </nav>
     {% endif %}
@@ -214,6 +348,39 @@
             animation: slide-in 0.3s ease-out;
         }
     </style>
+    
+    <script>
+        function toggleDrawer() {
+            const drawer = document.getElementById('navDrawer');
+            const overlay = document.getElementById('drawerOverlay');
+            
+            if (drawer && overlay) {
+                const isOpen = !drawer.classList.contains('translate-x-full');
+                
+                if (isOpen) {
+                    // Close drawer
+                    drawer.classList.add('translate-x-full');
+                    overlay.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                } else {
+                    // Open drawer
+                    drawer.classList.remove('translate-x-full');
+                    overlay.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+        }
+        
+        // Close drawer when pressing Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const drawer = document.getElementById('navDrawer');
+                if (drawer && !drawer.classList.contains('translate-x-full')) {
+                    toggleDrawer();
+                }
+            }
+        });
+    </script>
     
     {% block extra_scripts %}{% endblock %}
 </body>

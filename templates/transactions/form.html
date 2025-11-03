@@ -18,39 +18,54 @@
         </div>
     </div>
     
+    <!-- Daily Limit Warning (shown for expenses) -->
+    <div id="dailyLimitWarning" class="hidden bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-4">
+        <div class="flex items-start gap-3">
+            <i class='bx bx-error text-yellow-600 text-2xl'></i>
+            <div class="flex-1">
+                <p class="font-semibold text-yellow-900 mb-1">Daily Limit Alert</p>
+                <p id="limitWarningMessage" class="text-sm text-yellow-700"></p>
+                <div class="mt-3">
+                    <div class="flex justify-between text-xs text-yellow-700 mb-1">
+                        <span id="spentAmount">Spent today: ৳0</span>
+                        <span id="limitAmount">Limit: ৳0</span>
+                    </div>
+                    <div class="w-full bg-yellow-200 rounded-full h-2">
+                        <div id="limitProgressBar" class="bg-yellow-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Form -->
     <div class="bg-white rounded-xl p-6 shadow-sm">
         <form method="POST" class="space-y-6">
             <!-- Transaction Type -->
-            <div class="floating-label-input">
-                <select name="transaction_type" id="transaction_type" required 
-                        onchange="updateCategories()"
-                        class="text-text-dark">
-                    <option value="">Select Type</option>
-                    <option value="income" {% if transaction and transaction.transaction_type == 'income' %}selected{% endif %}>Income</option>
-                    <option value="expense" {% if transaction and transaction.transaction_type == 'expense' %}selected{% endif %}>Expense</option>
-                </select>
-                <label for="transaction_type">Transaction Type</label>
-            </div>
-            
-            <!-- Amount -->
+        <div class="floating-label-input">
+            <select id="transaction_type" name="type" required {% if not transaction or not transaction.transaction_type %}data-placeholder="true"{% endif %}>
+                <option value="" disabled {% if not transaction or not transaction.transaction_type %}selected{% endif %}></option>
+                <option value="income" {% if transaction and transaction.transaction_type == 'income' %}selected{% endif %}>💰 Income</option>
+                <option value="expense" {% if transaction and transaction.transaction_type == 'expense' %}selected{% endif %}>💸 Expense</option>
+                <option value="borrow" {% if transaction and transaction.transaction_type == 'borrow' %}selected{% endif %}>🤝 Borrow</option>
+            </select>
+            <label for="transaction_type">Transaction Type</label>
+        </div>            <!-- Amount -->
             <div class="floating-label-input">
                 <input type="number" step="0.01" name="amount" id="amount" 
                        placeholder=" " required
                        value="{% if transaction %}{{ transaction.amount }}{% endif %}"
                        class="text-text-dark">
-                <label for="amount">Amount ($)</label>
+                <label for="amount">Amount (৳)</label>
             </div>
             
             <!-- Category -->
-            <div class="floating-label-input">
-                <select name="category" id="category" required class="text-text-dark">
-                    <option value="">Select Category</option>
-                </select>
-                <label for="category">Category</label>
-            </div>
-            
-            <!-- Description -->
+        <div class="floating-label-input">
+            <select id="category" name="category" required data-placeholder="true">
+                <option value="" disabled selected></option>
+            </select>
+            <label for="category">Category</label>
+        </div>            <!-- Description -->
             <div class="floating-label-input">
                 <input type="text" name="description" id="description" 
                        placeholder=" " required
@@ -59,13 +74,50 @@
                 <label for="description">Description</label>
             </div>
             
+            <!-- Product Name -->
+            <div class="floating-label-input relative">
+                <input type="text" name="product_name" id="product_name" 
+                       placeholder=" " 
+                       autocomplete="off"
+                       value="{% if transaction and transaction.product_name %}{{ transaction.product_name }}{% endif %}"
+                       class="text-text-dark">
+                <label for="product_name">Product Name (Optional)</label>
+                <!-- Suggestions dropdown -->
+                <div id="product_suggestions" class="absolute z-50 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto hidden">
+                </div>
+            </div>
+            
             <!-- Date -->
             <div class="floating-label-input">
                 <input type="date" name="date" id="date" 
                        placeholder=" " required
-                       value="{% if transaction %}{{ transaction.date.strftime('%Y-%m-%d') }}{% else %}{{ now().strftime('%Y-%m-%d') }}{% endif %}"
+                       value="{% if transaction %}{{ transaction.date.strftime('%Y-%m-%d') }}{% else %}{{ today }}{% endif %}"
                        class="text-text-dark">
                 <label for="date">Date</label>
+            </div>
+            
+            <!-- Borrow-specific fields (shown only for borrow type) -->
+            <div id="borrow_fields" style="display: none;" class="space-y-6 border-t pt-6 mt-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <i class='bx bx-info-circle text-accent text-xl'></i>
+                    <p class="text-sm text-text-gray">Additional information for borrowed money</p>
+                </div>
+                
+                <div class="floating-label-input">
+                    <input type="text" name="borrower_name" id="borrower_name" 
+                           placeholder=" "
+                           value="{% if transaction and transaction.borrower_name %}{{ transaction.borrower_name }}{% endif %}"
+                           class="text-text-dark">
+                    <label for="borrower_name">Borrower Name (Who owes you?)</label>
+                </div>
+                
+                <div class="floating-label-input">
+                    <input type="date" name="repayment_date" id="repayment_date" 
+                           placeholder=" "
+                           value="{% if transaction and transaction.repayment_date %}{{ transaction.repayment_date.strftime('%Y-%m-%d') }}{% endif %}"
+                           class="text-text-dark">
+                    <label for="repayment_date">Expected Repayment Date</label>
+                </div>
             </div>
             
             <!-- Submit Buttons -->
@@ -84,34 +136,261 @@
     </div>
 </div>
 
-<script>
-    const categories = {{ categories|tojson }};
-    
-    function updateCategories() {
+    <script>
+        const categoriesData = {{ categories | tojson }};
+        
         const typeSelect = document.getElementById('transaction_type');
         const categorySelect = document.getElementById('category');
-        const selectedType = typeSelect.value;
-        const currentCategory = "{% if transaction %}{{ transaction.category }}{% endif %}";
         
-        // Clear current options
-        categorySelect.innerHTML = '<option value="">Select Category</option>';
+        // Emoji mapping for categories
+        const categoryEmojis = {
+            'Salary': '💼',
+            'Freelance': '🎨',
+            'Investment': '📈',
+            'Business': '🏢',
+            'Gift': '🎁',
+            'Other Income': '💵',
+            'Food & Dining': '🍽️',
+            'Shopping': '🛍️',
+            'Transportation': '🚗',
+            'Bills & Utilities': '💡',
+            'Entertainment': '🎬',
+            'Healthcare': '🏥',
+            'Education': '📚',
+            'Travel': '✈️',
+            'Other Expense': '📝',
+            'Personal Loan': '👤',
+            'Business Loan': '💼',
+            'Emergency': '🚨',
+            'Other': '📌'
+        };
         
-        if (selectedType && categories[selectedType]) {
-            categories[selectedType].forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                if (category === currentCategory) {
-                    option.selected = true;
+        const borrowFields = document.getElementById('borrow_fields');
+        const borrowerNameInput = document.getElementById('borrower_name');
+        const repaymentDateInput = document.getElementById('repayment_date');
+        
+        function updateCategories() {
+            const type = typeSelect.value;
+            categorySelect.innerHTML = '<option value="" disabled selected></option>';
+            
+            // Show/hide borrow fields based on transaction type
+            if (type === 'borrow') {
+                borrowFields.style.display = 'block';
+                borrowerNameInput.required = true;
+                repaymentDateInput.required = true;
+            } else {
+                borrowFields.style.display = 'none';
+                borrowerNameInput.required = false;
+                repaymentDateInput.required = false;
+            }
+            
+            if (type && categoriesData[type]) {
+                categoriesData[type].forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat;
+                    const emoji = categoryEmojis[cat] || '📌';
+                    option.textContent = emoji + ' ' + cat;
+                    {% if transaction and transaction.category %}
+                    if (cat === '{{ transaction.category }}') {
+                        option.selected = true;
+                    }
+                    {% endif %}
+                    categorySelect.appendChild(option);
+                });
+                
+                // Remove placeholder attribute once populated
+                categorySelect.removeAttribute('data-placeholder');
+            }
+        }
+        
+        typeSelect.addEventListener('change', function() {
+            updateCategories();
+            // Remove placeholder attribute when type is selected
+            this.removeAttribute('data-placeholder');
+        });
+        
+        // Initialize on page load
+        if (typeSelect.value) {
+            updateCategories();
+            typeSelect.removeAttribute('data-placeholder');
+        }
+        
+        // Show borrow fields if editing a borrow transaction
+        {% if transaction and transaction.transaction_type == 'borrow' %}
+        borrowFields.style.display = 'block';
+        borrowerNameInput.required = true;
+        repaymentDateInput.required = true;
+        {% endif %}
+        
+        // Daily Limit Warning
+        const amountInput = document.getElementById('amount');
+        const dailyLimitWarning = document.getElementById('dailyLimitWarning');
+        const limitWarningMessage = document.getElementById('limitWarningMessage');
+        const spentAmount = document.getElementById('spentAmount');
+        const limitAmount = document.getElementById('limitAmount');
+        const limitProgressBar = document.getElementById('limitProgressBar');
+        
+        function checkDailyLimit() {
+            const transType = typeSelect.value;
+            
+            // Only check for expenses
+            if (transType !== 'expense') {
+                dailyLimitWarning.classList.add('hidden');
+                return;
+            }
+            
+            fetch('/api/daily-spending-check')
+                .then(res => res.json())
+                .then(data => {
+                    const currentAmount = parseFloat(amountInput.value) || 0;
+                    const projectedTotal = data.total_spent + currentAmount;
+                    const projectedPercentage = (projectedTotal / data.daily_limit * 100);
+                    
+                    // Update display
+                    spentAmount.textContent = `Spent today: ৳${data.total_spent.toFixed(2)}`;
+                    limitAmount.textContent = `Limit: ৳${data.daily_limit.toFixed(2)}`;
+                    limitProgressBar.style.width = Math.min(projectedPercentage, 100) + '%';
+                    
+                    // Show warning based on projected total
+                    if (projectedPercentage >= 100) {
+                        dailyLimitWarning.classList.remove('hidden');
+                        dailyLimitWarning.classList.remove('bg-yellow-50', 'border-yellow-200');
+                        dailyLimitWarning.classList.add('bg-red-50', 'border-red-200');
+                        limitWarningMessage.textContent = `This expense will put you ৳${(projectedTotal - data.daily_limit).toFixed(2)} over your daily limit!`;
+                        limitProgressBar.classList.remove('bg-yellow-600');
+                        limitProgressBar.classList.add('bg-red-600');
+                    } else if (projectedPercentage >= 90) {
+                        dailyLimitWarning.classList.remove('hidden');
+                        dailyLimitWarning.classList.remove('bg-red-50', 'border-red-200');
+                        dailyLimitWarning.classList.add('bg-yellow-50', 'border-yellow-200');
+                        limitWarningMessage.textContent = `Warning! This will use ৳${(data.daily_limit - projectedTotal).toFixed(2)} of your remaining budget.`;
+                        limitProgressBar.classList.remove('bg-red-600');
+                        limitProgressBar.classList.add('bg-yellow-600');
+                    } else if (projectedPercentage >= 70) {
+                        dailyLimitWarning.classList.remove('hidden');
+                        dailyLimitWarning.classList.remove('bg-red-50', 'border-red-200');
+                        dailyLimitWarning.classList.add('bg-yellow-50', 'border-yellow-200');
+                        limitWarningMessage.textContent = `You'll have ৳${(data.daily_limit - projectedTotal).toFixed(2)} left after this expense.`;
+                        limitProgressBar.classList.remove('bg-red-600');
+                        limitProgressBar.classList.add('bg-yellow-600');
+                    } else {
+                        dailyLimitWarning.classList.add('hidden');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking daily limit:', error);
+                });
+        }
+        
+        // Check limit when amount or type changes
+        if (amountInput) {
+            amountInput.addEventListener('input', checkDailyLimit);
+        }
+        
+        typeSelect.addEventListener('change', function() {
+            checkDailyLimit();
+        });
+        
+        // Initial check
+        checkDailyLimit();
+        
+        // Product name autocomplete with API calls
+        const productNameInput = document.getElementById('product_name');
+        const productSuggestions = document.getElementById('product_suggestions');
+        let searchTimeout;
+        
+        if (productNameInput && productSuggestions) {
+            productNameInput.addEventListener('input', function() {
+                const value = this.value.trim();
+                
+                // Clear previous timeout
+                clearTimeout(searchTimeout);
+                
+                if (value.length === 0) {
+                    productSuggestions.classList.add('hidden');
+                    return;
                 }
-                categorySelect.appendChild(option);
+                
+                // Debounce API calls - wait 300ms after user stops typing
+                searchTimeout = setTimeout(() => {
+                    fetch(`/api/search-products?q=${encodeURIComponent(value)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('API response:', data);
+                            
+                            if (data.products.length === 0) {
+                                productSuggestions.classList.add('hidden');
+                                return;
+                            }
+                            
+                            // Build suggestions HTML
+                            let html = '';
+                            data.products.forEach(name => {
+                                html += `<div class="px-4 py-2.5 hover:bg-gray-100 cursor-pointer transition border-b border-gray-100 last:border-0 flex items-center gap-2">
+                                    <i class='bx bx-package text-accent'></i>
+                                    <span class="text-text-dark">${name}</span>
+                                </div>`;
+                            });
+                            
+                            productSuggestions.innerHTML = html;
+                            productSuggestions.classList.remove('hidden');
+                            
+                            // Add click handlers to suggestions
+                            productSuggestions.querySelectorAll('div').forEach(div => {
+                                div.addEventListener('click', function() {
+                                    productNameInput.value = this.querySelector('span').textContent;
+                                    productSuggestions.classList.add('hidden');
+                                });
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching products:', error);
+                        });
+                }, 300);
+            });
+            
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!productNameInput.contains(e.target) && !productSuggestions.contains(e.target)) {
+                    productSuggestions.classList.add('hidden');
+                }
+            });
+            
+            // Show all suggestions when focused and empty
+            productNameInput.addEventListener('focus', function() {
+                if (this.value.trim().length === 0) {
+                    fetch('/api/search-products')
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('All products:', data);
+                            
+                            if (data.products.length === 0) {
+                                return;
+                            }
+                            
+                            let html = '';
+                            data.products.forEach(name => {
+                                html += `<div class="px-4 py-2.5 hover:bg-gray-100 cursor-pointer transition border-b border-gray-100 last:border-0 flex items-center gap-2">
+                                    <i class='bx bx-package text-accent'></i>
+                                    <span class="text-text-dark">${name}</span>
+                                </div>`;
+                            });
+                            productSuggestions.innerHTML = html;
+                            productSuggestions.classList.remove('hidden');
+                            
+                            // Add click handlers
+                            productSuggestions.querySelectorAll('div').forEach(div => {
+                                div.addEventListener('click', function() {
+                                    productNameInput.value = this.querySelector('span').textContent;
+                                    productSuggestions.classList.add('hidden');
+                                });
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching products:', error);
+                        });
+                }
             });
         }
-    }
-    
-    // Initialize categories on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        updateCategories();
-    });
-</script>
+    </script>
 {% endblock %}

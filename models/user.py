@@ -7,13 +7,14 @@ import re
 class User(UserMixin):
     """User model for authentication"""
     
-    def __init__(self, username, email, password=None, password_hash=None, _id=None, google_id=None, profile_picture=None):
+    def __init__(self, username, email, password=None, password_hash=None, _id=None, google_id=None, profile_picture=None, daily_expense_limit=None):
         self._id = _id or ObjectId()
         self.username = username
         self.email = email
         self.password_hash = password_hash
         self.google_id = google_id
         self.profile_picture = profile_picture
+        self.daily_expense_limit = daily_expense_limit or 1000.0  # Default 1000 Taka
         if password and not password_hash:
             self.password_hash = generate_password_hash(password)
         self.created_at = datetime.now()
@@ -32,6 +33,7 @@ class User(UserMixin):
             'password_hash': self.password_hash,
             'google_id': self.google_id,
             'profile_picture': self.profile_picture,
+            'daily_expense_limit': self.daily_expense_limit,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
@@ -45,7 +47,8 @@ class User(UserMixin):
             password_hash=data.get('password_hash'),
             _id=data.get('_id'),
             google_id=data.get('google_id'),
-            profile_picture=data.get('profile_picture')
+            profile_picture=data.get('profile_picture'),
+            daily_expense_limit=data.get('daily_expense_limit', 1000.0)
         )
         user.created_at = data.get('created_at', datetime.now())
         user.updated_at = data.get('updated_at', datetime.now())

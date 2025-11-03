@@ -18,6 +18,7 @@
                 <option value="all" {% if transaction_type == 'all' %}selected{% endif %}>All Types</option>
                 <option value="income" {% if transaction_type == 'income' %}selected{% endif %}>Income</option>
                 <option value="expense" {% if transaction_type == 'expense' %}selected{% endif %}>Expense</option>
+                <option value="borrow" {% if transaction_type == 'borrow' %}selected{% endif %}>Borrow</option>
             </select>
             
             <select name="category" onchange="this.form.submit()" 
@@ -37,6 +38,13 @@
                         {% endfor %}
                     </optgroup>
                 {% endif %}
+                {% if transaction_type == 'borrow' or transaction_type == 'all' %}
+                    <optgroup label="Borrow">
+                        {% for cat in categories.borrow %}
+                        <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endif %}
             </select>
         </form>
     </div>
@@ -49,19 +57,35 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3 flex-1">
                         <div class="w-12 h-12 rounded-full flex items-center justify-center 
-                                  {% if transaction.transaction_type == 'income' %}bg-green-100{% else %}bg-red-100{% endif %}">
-                            <i class='bx {% if transaction.transaction_type == "income" %}bx-trending-up text-feedback-green{% else %}bx-trending-down text-feedback-red{% endif %} text-2xl'></i>
+                                  {% if transaction.transaction_type == 'income' %}bg-green-100
+                                  {% elif transaction.transaction_type == 'borrow' %}bg-blue-100
+                                  {% else %}bg-red-100{% endif %}">
+                            <i class='bx {% if transaction.transaction_type == "income" %}bx-trending-up text-feedback-green
+                                        {% elif transaction.transaction_type == "borrow" %}bx-hand text-blue-600
+                                        {% else %}bx-trending-down text-feedback-red{% endif %} text-2xl'></i>
                         </div>
                         <div class="flex-1">
                             <p class="text-text-dark font-semibold">{{ transaction.description }}</p>
                             <p class="text-text-gray text-sm">{{ transaction.category }}</p>
+                            {% if transaction.transaction_type == 'borrow' and transaction.borrower_name %}
+                            <p class="text-blue-600 text-xs mt-1">
+                                <i class='bx bx-user'></i> {{ transaction.borrower_name }}
+                                {% if transaction.repayment_date %}
+                                <span class="ml-2">
+                                    <i class='bx bx-calendar'></i> Due: {{ transaction.repayment_date|date_format }}
+                                </span>
+                                {% endif %}
+                            </p>
+                            {% endif %}
                             <p class="text-text-gray text-xs">{{ transaction.date|date_format }}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
                         <div class="text-right">
-                            <p class="font-bold text-lg {% if transaction.transaction_type == 'income' %}text-feedback-green{% else %}text-feedback-red{% endif %}">
-                                {% if transaction.transaction_type == 'income' %}+{% else %}-{% endif %}{{ transaction.amount|currency }}
+                            <p class="font-bold text-lg {% if transaction.transaction_type == 'income' %}text-feedback-green
+                                                          {% elif transaction.transaction_type == 'borrow' %}text-blue-600
+                                                          {% else %}text-feedback-red{% endif %}">
+                                {% if transaction.transaction_type == 'income' %}+{% elif transaction.transaction_type == 'borrow' %}↔{% else %}-{% endif %}{{ transaction.amount|currency }}
                             </p>
                         </div>
                         <div class="flex gap-2">
