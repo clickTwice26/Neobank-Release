@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Transactions - NeoBank{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div>
+        <h1 class="text-2xl font-bold text-text-dark">Transactions</h1>
+        <p class="text-text-gray text-sm">All your financial activities</p>
+    </div>
+    
+    <!-- Filters -->
+    <div class="bg-white rounded-xl p-4 shadow-sm">
+        <form method="GET" class="flex gap-3 flex-wrap">
+            <select name="type" onchange="this.form.submit()" 
+                    class="px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-primary outline-none">
+                <option value="all" {% if transaction_type == 'all' %}selected{% endif %}>All Types</option>
+                <option value="income" {% if transaction_type == 'income' %}selected{% endif %}>Income</option>
+                <option value="expense" {% if transaction_type == 'expense' %}selected{% endif %}>Expense</option>
+            </select>
+            
+            <select name="category" onchange="this.form.submit()" 
+                    class="px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-primary outline-none">
+                <option value="all">All Categories</option>
+                {% if transaction_type == 'income' or transaction_type == 'all' %}
+                    <optgroup label="Income">
+                        {% for cat in categories.income %}
+                        <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endif %}
+                {% if transaction_type == 'expense' or transaction_type == 'all' %}
+                    <optgroup label="Expense">
+                        {% for cat in categories.expense %}
+                        <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endif %}
+            </select>
+        </form>
+    </div>
+    
+    <!-- Transaction List -->
+    <div class="space-y-3">
+        {% if transactions %}
+            {% for transaction in transactions %}
+            <div class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3 flex-1">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center 
+                                  {% if transaction.transaction_type == 'income' %}bg-green-100{% else %}bg-red-100{% endif %}">
+                            <i class='bx {% if transaction.transaction_type == "income" %}bx-trending-up text-feedback-green{% else %}bx-trending-down text-feedback-red{% endif %} text-2xl'></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-text-dark font-semibold">{{ transaction.description }}</p>
+                            <p class="text-text-gray text-sm">{{ transaction.category }}</p>
+                            <p class="text-text-gray text-xs">{{ transaction.date|date_format }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="text-right">
+                            <p class="font-bold text-lg {% if transaction.transaction_type == 'income' %}text-feedback-green{% else %}text-feedback-red{% endif %}">
+                                {% if transaction.transaction_type == 'income' %}+{% else %}-{% endif %}{{ transaction.amount|currency }}
+                            </p>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="{{ url_for('transactions.edit', transaction_id=transaction._id) }}" 
+                               class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center hover:bg-blue-100 transition">
+                                <i class='bx bx-edit text-blue-600'></i>
+                            </a>
+                            <form method="POST" action="{{ url_for('transactions.delete', transaction_id=transaction._id) }}" 
+                                  onsubmit="return confirm('Are you sure you want to delete this transaction?');">
+                                <button type="submit" 
+                                        class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center hover:bg-red-100 transition">
+                                    <i class='bx bx-trash text-red-600'></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="bg-white rounded-xl p-12 text-center shadow-sm">
+            <i class='bx bx-receipt text-6xl text-text-gray opacity-30'></i>
+            <p class="text-text-gray mt-4 text-lg">No transactions found</p>
+            <p class="text-text-gray text-sm mt-1">Try adjusting your filters or add a new transaction</p>
+            <a href="{{ url_for('transactions.add') }}" 
+               class="mt-4 inline-block px-6 py-2 bg-accent text-white rounded-lg hover:bg-green-600 transition">
+                Add Transaction
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
