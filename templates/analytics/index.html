@@ -191,6 +191,23 @@
             </div>
         </div>
     </div>
+    
+    <!-- Product-wise Breakdown -->
+    <div class="bg-white rounded-xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-bold text-text-dark flex items-center gap-2">
+                <i class='bx bx-package text-accent'></i>
+                Product-wise Analysis
+            </h2>
+            <p class="text-sm text-text-gray">Transactions grouped by product</p>
+        </div>
+        
+        <div id="productTableContainer">
+            <div class="flex justify-center items-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Include Chart.js -->
@@ -492,6 +509,111 @@
             document.getElementById('monthlyTableContainer').innerHTML = `
                 <div class="text-center py-8">
                     <p class="text-red-600">Failed to load monthly breakdown</p>
+                </div>
+            `;
+        });
+    
+    // Product-wise Breakdown Table
+    fetch(`/api/analytics/product-breakdown?period=${period}`)
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById('productTableContainer');
+            
+            if (!data.products || data.products.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class='bx bx-package text-6xl text-text-gray opacity-30'></i>
+                        <p class="text-text-gray mt-2">No product data available</p>
+                        <p class="text-text-gray text-sm">Start adding product names to your transactions</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-gray-200">
+                                <th class="text-left py-3 px-4 font-semibold text-text-dark">Product Name</th>
+                                <th class="text-right py-3 px-4 font-semibold text-green-600">Income</th>
+                                <th class="text-right py-3 px-4 font-semibold text-red-600">Expenses</th>
+                                <th class="text-right py-3 px-4 font-semibold text-blue-600">Borrow</th>
+                                <th class="text-right py-3 px-4 font-semibold text-accent">Total</th>
+                                <th class="text-center py-3 px-4 font-semibold text-text-gray">Transactions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.products.map((item, index) => `
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
+                                    <td class="py-3 px-4">
+                                        <div class="flex items-center gap-2">
+                                            <i class='bx bx-package text-accent text-xl'></i>
+                                            <span class="font-medium text-text-dark">${item.product}</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4 text-right ${item.income > 0 ? 'text-green-600 font-semibold' : 'text-text-gray'}">
+                                        ${item.income > 0 ? '৳' + item.income.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}
+                                    </td>
+                                    <td class="py-3 px-4 text-right ${item.expense > 0 ? 'text-red-600 font-semibold' : 'text-text-gray'}">
+                                        ${item.expense > 0 ? '৳' + item.expense.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}
+                                    </td>
+                                    <td class="py-3 px-4 text-right ${item.borrow > 0 ? 'text-blue-600 font-semibold' : 'text-text-gray'}">
+                                        ${item.borrow > 0 ? '৳' + item.borrow.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}
+                                    </td>
+                                    <td class="py-3 px-4 text-right font-bold text-accent">
+                                        ৳${item.total.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                    </td>
+                                    <td class="py-3 px-4 text-center">
+                                        <span class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-gray-100 text-text-dark text-sm font-semibold">
+                                            ${item.count}
+                                        </span>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                        <tfoot class="bg-gray-50 font-bold">
+                            <tr class="border-t-2 border-gray-300">
+                                <td class="py-4 px-4 text-text-dark">Total</td>
+                                <td class="py-4 px-4 text-right text-green-600">৳${data.totals.income.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td class="py-4 px-4 text-right text-red-600">৳${data.totals.expense.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td class="py-4 px-4 text-right text-blue-600">৳${data.totals.borrow.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td class="py-4 px-4 text-right text-accent">৳${data.totals.total.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td class="py-4 px-4 text-center text-text-gray">${data.totals.count}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <!-- Summary Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t">
+                    <div class="text-center">
+                        <p class="text-sm text-text-gray mb-1">Unique Products</p>
+                        <p class="text-2xl font-bold text-accent">${data.products.length}</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm text-text-gray mb-1">Most Expensive</p>
+                        <p class="text-lg font-bold text-red-600">${data.products.find(p => p.expense > 0)?.product || 'N/A'}</p>
+                        <p class="text-xs text-text-gray">৳${(data.products.find(p => p.expense > 0)?.expense || 0).toFixed(2)}</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm text-text-gray mb-1">Most Profitable</p>
+                        <p class="text-lg font-bold text-green-600">${data.products.find(p => p.income > 0)?.product || 'N/A'}</p>
+                        <p class="text-xs text-text-gray">৳${(data.products.find(p => p.income > 0)?.income || 0).toFixed(2)}</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm text-text-gray mb-1">Most Frequent</p>
+                        <p class="text-lg font-bold text-blue-600">${data.products[0]?.product || 'N/A'}</p>
+                        <p class="text-xs text-text-gray">${data.products[0]?.count || 0} transactions</p>
+                    </div>
+                </div>
+            `;
+        })
+        .catch(error => {
+            console.error('Error loading product breakdown:', error);
+            document.getElementById('productTableContainer').innerHTML = `
+                <div class="text-center py-8">
+                    <p class="text-red-600">Failed to load product breakdown</p>
                 </div>
             `;
         });

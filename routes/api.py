@@ -387,6 +387,79 @@ def analytics_monthly_breakdown():
         'totals': totals
     })
 
+@bp.route('/analytics/product-breakdown')
+@login_required
+def analytics_product_breakdown():
+    from app import mongo
+    from collections import defaultdict
+    
+    user_id = str(current_user._id)
+    period = request.args.get('period', '6months')
+    
+    # Calculate start date based on period
+    if period == '1month':
+        start_date = datetime.now() - timedelta(days=30)
+    elif period == '3months':
+        start_date = datetime.now() - timedelta(days=90)
+    elif period == '1year':
+        start_date = datetime.now() - timedelta(days=365)
+    else:  # 6months
+        start_date = datetime.now() - timedelta(days=180)
+    
+    # Get transactions with product names
+    transactions = list(mongo.db.transactions.find({
+        'user_id': user_id,
+        'date': {'$gte': start_date},
+        'product_name': {'$exists': True, '$ne': None, '$ne': ''}
+    }))
+    
+    # Group by product name
+    product_data = defaultdict(lambda: {
+        'income': 0, 
+        'expense': 0, 
+        'borrow': 0,
+        'count': 0
+    })
+    
+    for t in transactions:
+        product = t.get('product_name', 'Unknown')
+        trans_type = t.get('transaction_type', 'expense')
+        amount = t.get('amount', 0)
+        
+        if trans_type in ['income', 'expense', 'borrow']:
+            product_data[product][trans_type] += amount
+            product_data[product]['count'] += 1
+    
+    # Convert to list and sort by total value (income + expense + borrow)
+    products = []
+    for product_name, data in product_data.items():
+        total_value = data['income'] + data['expense'] + data['borrow']
+        products.append({
+            'product': product_name,
+            'income': round(data['income'], 2),
+            'expense': round(data['expense'], 2),
+            'borrow': round(data['borrow'], 2),
+            'total': round(total_value, 2),
+            'count': data['count']
+        })
+    
+    # Sort by total value descending
+    products.sort(key=lambda x: x['total'], reverse=True)
+    
+    # Calculate totals
+    totals = {
+        'income': sum(p['income'] for p in products),
+        'expense': sum(p['expense'] for p in products),
+        'borrow': sum(p['borrow'] for p in products),
+        'total': sum(p['total'] for p in products),
+        'count': sum(p['count'] for p in products)
+    }
+    
+    return jsonify({
+        'products': products,
+        'totals': totals
+    })
+
 @bp.route('/daily-spending-check')
 @login_required
 def daily_spending_check():
