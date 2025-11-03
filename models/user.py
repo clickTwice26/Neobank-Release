@@ -30,7 +30,7 @@ class User(UserMixin):
             '_id': self._id,
             'username': self.username,
             'email': self.email,
-            'password_hash': self.password_hash,
+            'password': self.password_hash,  # Store as 'password' in DB
             'google_id': self.google_id,
             'profile_picture': self.profile_picture,
             'daily_expense_limit': self.daily_expense_limit,
@@ -44,7 +44,7 @@ class User(UserMixin):
         user = User(
             username=data.get('username'),
             email=data.get('email'),
-            password_hash=data.get('password_hash'),
+            password_hash=data.get('password') or data.get('password_hash'),  # Support both keys
             _id=data.get('_id'),
             google_id=data.get('google_id'),
             profile_picture=data.get('profile_picture'),

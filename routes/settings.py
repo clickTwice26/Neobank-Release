@@ -223,38 +223,49 @@ def daily_limit():
 @bp.route('/change-password', methods=['GET', 'POST'])
 @login_required
 def change_password():
-    """Change user password"""
+    """Change or set user password (works for both regular and OAuth users)"""
     from app import mongo
     from werkzeug.security import check_password_hash, generate_password_hash
     
     user_id = str(current_user._id)
+    
+    # Get user from database
+    user_data = mongo.db.users.find_one({'_id': ObjectId(user_id)})
+    
+    if not user_data:
+        flash('User not found', 'error')
+        return redirect(url_for('settings.index'))
+    
+    # Check if user has a password set
+    has_password = 'password' in user_data and user_data['password']
+    is_oauth_user = 'google_id' in user_data and user_data['google_id']
     
     if request.method == 'POST':
         current_password = request.form.get('current_password', '').strip()
         new_password = request.form.get('new_password', '').strip()
         confirm_password = request.form.get('confirm_password', '').strip()
         
-        # Validation
-        if not current_password or not new_password or not confirm_password:
-            flash('All fields are required', 'error')
-            return redirect(url_for('settings.change_password'))
-        
-        # Get user from database
-        user_data = mongo.db.users.find_one({'_id': ObjectId(user_id)})
-        
-        if not user_data:
-            flash('User not found', 'error')
-            return redirect(url_for('settings.change_password'))
-        
-        # Check if user has a password (not OAuth-only user)
-        if 'password' not in user_data or not user_data['password']:
-            flash('Cannot change password for OAuth-only accounts', 'error')
-            return redirect(url_for('settings.change_password'))
-        
-        # Verify current password
-        if not check_password_hash(user_data['password'], current_password):
-            flash('Current password is incorrect', 'error')
-            return redirect(url_for('settings.change_password'))
+        # For OAuth users setting password for the first time
+        if is_oauth_user and not has_password:
+            # No current password needed
+            if not new_password or not confirm_password:
+                flash('New password and confirmation are required', 'error')
+                return redirect(url_for('settings.change_password'))
+        else:
+            # Regular users or OAuth users with existing password
+            if not current_password or not new_password or not confirm_password:
+                flash('All fields are required', 'error')
+                return redirect(url_for('settings.change_password'))
+            
+            # Verify current password
+            if not check_password_hash(user_data['password'], current_password):
+                flash('Current password is incorrect', 'error')
+                return redirect(url_for('settings.change_password'))
+            
+            # Check if new password is different from old password
+            if current_password == new_password:
+                flash('New password must be different from current password', 'error')
+                return redirect(url_for('settings.change_password'))
         
         # Validate new password
         if len(new_password) < 6:
@@ -266,11 +277,6 @@ def change_password():
             flash('New passwords do not match', 'error')
             return redirect(url_for('settings.change_password'))
         
-        # Check if new password is different from old password
-        if current_password == new_password:
-            flash('New password must be different from current password', 'error')
-            return redirect(url_for('settings.change_password'))
-        
         # Update password
         hashed_password = generate_password_hash(new_password)
         mongo.db.users.update_one(
@@ -278,11 +284,13 @@ def change_password():
             {'$set': {'password': hashed_password}}
         )
         
-        flash('Password changed successfully!', 'success')
+        if is_oauth_user and not has_password:
+            flash('Password set successfully! You can now login with email and password.', 'success')
+        else:
+            flash('Password changed successfully!', 'success')
+        
         return redirect(url_for('settings.index'))
     
-    # Check if user can change password (has a password set)
-    user_data = mongo.db.users.find_one({'_id': ObjectId(user_id)})
-    can_change_password = user_data and 'password' in user_data and user_data['password']
-    
-    return render_template('settings/change_password.html', can_change_password=can_change_password)
+    return render_template('settings/change_password.html', 
+                         has_password=has_password,
+                         is_oauth_user=is_oauth_user)

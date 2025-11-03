@@ -39,12 +39,16 @@
             </div>
 
             <form method="POST" class="space-y-6">
-                <!-- Username -->
+                <!-- Username or Email -->
                 <div class="floating-label-input">
                     <input type="text" name="username" id="username" 
                            placeholder=" " required autofocus
                            class="text-text-dark">
-                    <label for="username">Username</label>
+                    <label for="username">Username or Email</label>
+                    <div class="mt-1 flex items-center gap-2">
+                        <i class='bx bx-user text-text-gray text-xs'></i>
+                        <span class="text-xs text-text-gray">Enter your username or email address</span>
+                    </div>
                 </div>
                 
                 <!-- Password -->
@@ -53,6 +57,10 @@
                            placeholder=" " required
                            class="text-text-dark">
                     <label for="password">Password</label>
+                    <div class="mt-1 flex items-center gap-2">
+                        <i class='bx bx-lock-alt text-text-gray text-xs'></i>
+                        <span class="text-xs text-text-gray">Enter your password</span>
+                    </div>
                 </div>
                 
                 <!-- Submit Button -->

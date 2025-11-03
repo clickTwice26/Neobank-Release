@@ -85,17 +85,26 @@ def login():
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
         
-        # Find user by username
+        # Try to find user by username first, then by email
         user_data = mongo.db.users.find_one({'username': username})
         
+        # If not found by username, try email
         if not user_data:
-            flash('Invalid username or password', 'error')
+            user_data = mongo.db.users.find_one({'email': username})
+        
+        if not user_data:
+            flash('Invalid username/email or password', 'error')
+            return render_template('auth/login.html')
+        
+        # Check if user has a password set
+        if 'password' not in user_data or not user_data['password']:
+            flash('This account uses OAuth login. Please use "Sign in with Google" or set a password in settings.', 'error')
             return render_template('auth/login.html')
         
         # Create user object and check password
         user = User.from_dict(user_data)
         if not user.check_password(password):
-            flash('Invalid username or password', 'error')
+            flash('Invalid username/email or password', 'error')
             return render_template('auth/login.html')
         
         # Log user in
