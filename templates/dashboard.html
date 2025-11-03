@@ -87,7 +87,7 @@
     <div class="bg-white rounded-xl p-6 shadow-sm">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold text-text-dark">Recent Transactions</h3>
-            <a href="{{ url_for('transactions.list') }}" class="text-accent text-sm font-semibold">View All</a>
+            <a href="{{ url_for('transactions.list_transactions') }}" class="text-accent text-sm font-semibold">View All</a>
         </div>
         
         {% if recent_transactions %}

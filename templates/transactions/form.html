@@ -6,7 +6,7 @@
 <div class="max-w-2xl mx-auto space-y-6">
     <!-- Header -->
     <div class="flex items-center gap-3">
-        <a href="{{ url_for('transactions.list') }}" 
+        <a href="{{ url_for('transactions.list_transactions') }}" 
            class="w-10 h-10 rounded-lg bg-white flex items-center justify-center hover:bg-gray-100 transition shadow-sm">
             <i class='bx bx-arrow-back text-xl text-text-dark'></i>
         </a>
@@ -75,7 +75,7 @@
                     <i class='bx bx-check mr-2'></i>
                     {% if transaction %}Update Transaction{% else %}Add Transaction{% endif %}
                 </button>
-                <a href="{{ url_for('transactions.list') }}" 
+                <a href="{{ url_for('transactions.list_transactions') }}" 
                    class="px-6 bg-gray-200 text-text-dark py-3 rounded-lg font-semibold hover:bg-gray-300 transition">
                     Cancel
                 </a>

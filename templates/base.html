@@ -182,15 +182,15 @@
                 <i class='bx bx-home text-2xl'></i>
                 <span class="text-xs">Home</span>
             </a>
-            <a href="{{ url_for('transactions.list') }}" class="flex flex-col items-center gap-1 px-4 py-2 {% if request.endpoint == 'transactions.list' %}text-accent{% else %}text-text-gray{% endif %}">
+            <a href="{{ url_for('transactions.list_transactions') }}" class="flex flex-col items-center gap-1 px-4 py-2 {% if request.endpoint == 'transactions.list_transactions' %}text-accent{% else %}text-text-gray{% endif %}">
                 <i class='bx bx-list-ul text-2xl'></i>
                 <span class="text-xs">Transactions</span>
             </a>
-            <a href="{{ url_for('transactions.list', type='expense') }}" class="flex flex-col items-center gap-1 px-4 py-2 {% if request.args.get('type') == 'expense' %}text-accent{% else %}text-text-gray{% endif %}">
+            <a href="{{ url_for('transactions.list_transactions', type='expense') }}" class="flex flex-col items-center gap-1 px-4 py-2 {% if request.args.get('type') == 'expense' %}text-accent{% else %}text-text-gray{% endif %}">
                 <i class='bx bx-wallet text-2xl'></i>
                 <span class="text-xs">Expenses</span>
             </a>
-            <a href="{{ url_for('transactions.list', type='income') }}" class="flex flex-col items-center gap-1 px-4 py-2 {% if request.args.get('type') == 'income' %}text-accent{% else %}text-text-gray{% endif %}">
+            <a href="{{ url_for('transactions.list_transactions', type='income') }}" class="flex flex-col items-center gap-1 px-4 py-2 {% if request.args.get('type') == 'income' %}text-accent{% else %}text-text-gray{% endif %}">
                 <i class='bx bx-money text-2xl'></i>
                 <span class="text-xs">Income</span>
             </a>

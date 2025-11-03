@@ -12,7 +12,7 @@ bp = Blueprint('transactions', __name__, url_prefix='/transactions')
 
 @bp.route('/')
 @login_required
-def list():
+def list_transactions():
     from app import mongo
     
     user_id = str(current_user._id)
@@ -29,7 +29,8 @@ def list():
         query['category'] = category
     
     # Fetch transactions
-    transactions = list(mongo.db.transactions.find(query).sort('date', -1))
+    transactions_cursor = mongo.db.transactions.find(query).sort('date', -1)
+    transactions = [t for t in transactions_cursor]
     
     return render_template('transactions/list.html',
                          transactions=transactions,
@@ -96,7 +97,7 @@ def edit(transaction_id):
     
     if not transaction_data:
         flash('Transaction not found', 'error')
-        return redirect(url_for('transactions.list'))
+        return redirect(url_for('transactions.list_transactions'))
     
     if request.method == 'POST':
         updated_transaction = Transaction(
@@ -129,7 +130,7 @@ def edit(transaction_id):
         clear_cache()
         
         flash('Transaction updated successfully!', 'success')
-        return redirect(url_for('transactions.list'))
+        return redirect(url_for('transactions.list_transactions'))
     
     return render_template('transactions/form.html',
                          transaction=transaction_data,
@@ -154,4 +155,4 @@ def delete(transaction_id):
     else:
         flash('Transaction not found', 'error')
     
-    return redirect(url_for('transactions.list'))
+    return redirect(url_for('transactions.list_transactions'))
