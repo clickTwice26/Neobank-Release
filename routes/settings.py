@@ -219,3 +219,70 @@ def daily_limit():
     current_limit = user_data.get('daily_expense_limit', 1000.0) if user_data else 1000.0
     
     return render_template('settings/daily_limit.html', current_limit=current_limit)
+
+@bp.route('/change-password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    """Change user password"""
+    from app import mongo
+    from werkzeug.security import check_password_hash, generate_password_hash
+    
+    user_id = str(current_user._id)
+    
+    if request.method == 'POST':
+        current_password = request.form.get('current_password', '').strip()
+        new_password = request.form.get('new_password', '').strip()
+        confirm_password = request.form.get('confirm_password', '').strip()
+        
+        # Validation
+        if not current_password or not new_password or not confirm_password:
+            flash('All fields are required', 'error')
+            return redirect(url_for('settings.change_password'))
+        
+        # Get user from database
+        user_data = mongo.db.users.find_one({'_id': ObjectId(user_id)})
+        
+        if not user_data:
+            flash('User not found', 'error')
+            return redirect(url_for('settings.change_password'))
+        
+        # Check if user has a password (not OAuth-only user)
+        if 'password' not in user_data or not user_data['password']:
+            flash('Cannot change password for OAuth-only accounts', 'error')
+            return redirect(url_for('settings.change_password'))
+        
+        # Verify current password
+        if not check_password_hash(user_data['password'], current_password):
+            flash('Current password is incorrect', 'error')
+            return redirect(url_for('settings.change_password'))
+        
+        # Validate new password
+        if len(new_password) < 6:
+            flash('New password must be at least 6 characters long', 'error')
+            return redirect(url_for('settings.change_password'))
+        
+        # Check if new password matches confirmation
+        if new_password != confirm_password:
+            flash('New passwords do not match', 'error')
+            return redirect(url_for('settings.change_password'))
+        
+        # Check if new password is different from old password
+        if current_password == new_password:
+            flash('New password must be different from current password', 'error')
+            return redirect(url_for('settings.change_password'))
+        
+        # Update password
+        hashed_password = generate_password_hash(new_password)
+        mongo.db.users.update_one(
+            {'_id': ObjectId(user_id)},
+            {'$set': {'password': hashed_password}}
+        )
+        
+        flash('Password changed successfully!', 'success')
+        return redirect(url_for('settings.index'))
+    
+    # Check if user can change password (has a password set)
+    user_data = mongo.db.users.find_one({'_id': ObjectId(user_id)})
+    can_change_password = user_data and 'password' in user_data and user_data['password']
+    
+    return render_template('settings/change_password.html', can_change_password=can_change_password)
