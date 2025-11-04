@@ -45,9 +45,9 @@
         <div class="floating-label-input">
             <select id="transaction_type" name="type" required {% if not transaction or not transaction.transaction_type %}data-placeholder="true"{% endif %}>
                 <option value="" disabled {% if not transaction or not transaction.transaction_type %}selected{% endif %}></option>
-                <option value="income" {% if transaction and transaction.transaction_type == 'income' %}selected{% endif %}>💰 Income</option>
-                <option value="expense" {% if transaction and transaction.transaction_type == 'expense' %}selected{% endif %}>💸 Expense</option>
-                <option value="borrow" {% if transaction and transaction.transaction_type == 'borrow' %}selected{% endif %}>🤝 Borrow</option>
+                <option value="income" {% if transaction and transaction.transaction_type == 'income' %}selected{% endif %}>Income</option>
+                <option value="expense" {% if transaction and transaction.transaction_type == 'expense' %}selected{% endif %}>Expense</option>
+                <option value="borrow" {% if transaction and transaction.transaction_type == 'borrow' %}selected{% endif %}>Borrow</option>
             </select>
             <label for="transaction_type">Transaction Type</label>
         </div>            <!-- Amount -->
@@ -142,29 +142,6 @@
         const typeSelect = document.getElementById('transaction_type');
         const categorySelect = document.getElementById('category');
         
-        // Emoji mapping for categories
-        const categoryEmojis = {
-            'Salary': '💼',
-            'Freelance': '🎨',
-            'Investment': '📈',
-            'Business': '🏢',
-            'Gift': '🎁',
-            'Other Income': '💵',
-            'Food & Dining': '🍽️',
-            'Shopping': '🛍️',
-            'Transportation': '🚗',
-            'Bills & Utilities': '💡',
-            'Entertainment': '🎬',
-            'Healthcare': '🏥',
-            'Education': '📚',
-            'Travel': '✈️',
-            'Other Expense': '📝',
-            'Personal Loan': '👤',
-            'Business Loan': '💼',
-            'Emergency': '🚨',
-            'Other': '📌'
-        };
-        
         const borrowFields = document.getElementById('borrow_fields');
         const borrowerNameInput = document.getElementById('borrower_name');
         const repaymentDateInput = document.getElementById('repayment_date');
@@ -188,8 +165,7 @@
                 categoriesData[type].forEach(cat => {
                     const option = document.createElement('option');
                     option.value = cat;
-                    const emoji = categoryEmojis[cat] || '📌';
-                    option.textContent = emoji + ' ' + cat;
+                    option.textContent = cat;
                     {% if transaction and transaction.category %}
                     if (cat === '{{ transaction.category }}') {
                         option.selected = true;

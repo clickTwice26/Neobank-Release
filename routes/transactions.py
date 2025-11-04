@@ -33,11 +33,14 @@ def list_transactions():
     transactions_cursor = mongo.db.transactions.find(query).sort('date', -1)
     transactions = [t for t in transactions_cursor]
     
+    # Get user's custom categories
+    categories = Category.get_user_categories(mongo, user_id)
+    
     return render_template('transactions/list.html',
                          transactions=transactions,
                          transaction_type=transaction_type,
                          category=category,
-                         categories=Transaction.CATEGORIES)
+                         categories=categories)
 
 @bp.route('/add', methods=['GET', 'POST'])
 @login_required
@@ -96,9 +99,19 @@ def add():
         flash(f'{transaction.transaction_type.capitalize()} added successfully!', 'success')
         return redirect(url_for('dashboard.index'))
     
+    # Get user's categories for the form
+    categories = Category.get_user_categories(mongo, user_id)
+    
+    # Get distinct product names for autocomplete
+    product_names = mongo.db.transactions.distinct('product_name', {
+        'user_id': user_id,
+        'product_name': {'$exists': True, '$ne': None, '$ne': ''}
+    })
+    
     return render_template('transactions/form.html',
                          transaction=None,
-                         categories=Transaction.CATEGORIES,
+                         categories=categories,
+                         product_names=product_names,
                          today=datetime.now().strftime('%Y-%m-%d'))
 
 @bp.route('/edit/<transaction_id>', methods=['GET', 'POST'])

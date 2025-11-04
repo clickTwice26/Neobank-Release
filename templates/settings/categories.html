@@ -28,9 +28,9 @@
                 <select name="transaction_type" required
                         class="px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-accent outline-none">
                     <option value="">Select Type</option>
-                    <option value="income">💰 Income</option>
-                    <option value="expense">💸 Expense</option>
-                    <option value="borrow">🤝 Borrow</option>
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                    <option value="borrow">Borrow</option>
                 </select>
             </div>
             <button type="submit" class="px-6 py-3 bg-accent text-white rounded-lg hover:bg-green-600 transition font-semibold">
@@ -55,13 +55,11 @@
                                 class="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition">
                             <i class='bx bx-edit'></i> Edit
                         </button>
-                        <form method="POST" action="{{ url_for('settings.delete_category', category_id=category._id | string) }}" 
-                              onsubmit="return confirm('Are you sure you want to delete this category?');" class="inline">
-                            <button type="submit" 
-                                    class="px-3 py-1 text-sm bg-red-50 text-feedback-red rounded-lg hover:bg-red-100 transition">
-                                <i class='bx bx-trash'></i> Delete
-                            </button>
-                        </form>
+                        <button type="button" 
+                                onclick="showDeleteModal('{{ category._id | string }}', '{{ category.name }}')"
+                                class="px-3 py-1 text-sm bg-red-50 text-feedback-red rounded-lg hover:bg-red-100 transition">
+                            <i class='bx bx-trash'></i> Delete
+                        </button>
                     </div>
                 </div>
                 {% endfor %}
@@ -87,13 +85,11 @@
                                 class="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition">
                             <i class='bx bx-edit'></i> Edit
                         </button>
-                        <form method="POST" action="{{ url_for('settings.delete_category', category_id=category._id | string) }}" 
-                              onsubmit="return confirm('Are you sure you want to delete this category?');" class="inline">
-                            <button type="submit" 
-                                    class="px-3 py-1 text-sm bg-red-50 text-feedback-red rounded-lg hover:bg-red-100 transition">
-                                <i class='bx bx-trash'></i> Delete
-                            </button>
-                        </form>
+                        <button type="button" 
+                                onclick="showDeleteModal('{{ category._id | string }}', '{{ category.name }}')"
+                                class="px-3 py-1 text-sm bg-red-50 text-feedback-red rounded-lg hover:bg-red-100 transition">
+                            <i class='bx bx-trash'></i> Delete
+                        </button>
                     </div>
                 </div>
                 {% endfor %}
@@ -119,13 +115,11 @@
                                 class="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition">
                             <i class='bx bx-edit'></i> Edit
                         </button>
-                        <form method="POST" action="{{ url_for('settings.delete_category', category_id=category._id | string) }}" 
-                              onsubmit="return confirm('Are you sure you want to delete this category?');" class="inline">
-                            <button type="submit" 
-                                    class="px-3 py-1 text-sm bg-red-50 text-feedback-red rounded-lg hover:bg-red-100 transition">
-                                <i class='bx bx-trash'></i> Delete
-                            </button>
-                        </form>
+                        <button type="button" 
+                                onclick="showDeleteModal('{{ category._id | string }}', '{{ category.name }}')"
+                                class="px-3 py-1 text-sm bg-red-50 text-feedback-red rounded-lg hover:bg-red-100 transition">
+                            <i class='bx bx-trash'></i> Delete
+                        </button>
                     </div>
                 </div>
                 {% endfor %}
@@ -137,7 +131,7 @@
 </div>
 
 <!-- Edit Modal -->
-<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
     <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
         <h3 class="text-lg font-semibold text-text-dark mb-4">Edit Category</h3>
         <form id="editForm" method="POST" action="">
@@ -158,6 +152,47 @@
     </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full">
+        <!-- Modal Header -->
+        <div class="bg-red-600 text-white p-5 rounded-t-xl">
+            <h3 class="text-lg font-bold">Delete Category</h3>
+            <p class="text-sm text-white text-opacity-90 mt-1">This action cannot be undone</p>
+        </div>
+        
+        <!-- Modal Body -->
+        <div class="p-5">
+            <p class="text-sm text-text-gray mb-4">Are you sure you want to delete this category?</p>
+            
+            <div class="bg-red-50 rounded-lg p-4 border-l-4 border-red-500">
+                <p class="font-semibold text-text-dark" id="deleteCategoryName"></p>
+            </div>
+            
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-4">
+                <p class="text-xs text-yellow-800">
+                    <strong>Warning:</strong> This category will be permanently removed.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="p-5 bg-gray-50 rounded-b-xl flex gap-3">
+            <button type="button" 
+                    onclick="closeDeleteModal()"
+                    class="flex-1 px-4 py-2.5 bg-gray-200 text-text-dark rounded-lg hover:bg-gray-300 transition font-medium text-sm">
+                Cancel
+            </button>
+            <form id="deleteForm" method="POST" class="flex-1">
+                <button type="submit" 
+                        class="w-full px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium text-sm">
+                    Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
     function editCategory(id, name) {
         document.getElementById('edit_category_name').value = name;
@@ -171,10 +206,36 @@
         document.getElementById('editModal').classList.remove('flex');
     }
     
-    // Close modal on background click
+    function showDeleteModal(categoryId, categoryName) {
+        document.getElementById('deleteCategoryName').textContent = categoryName;
+        document.getElementById('deleteForm').action = `/settings/categories/delete/${categoryId}`;
+        document.getElementById('deleteModal').classList.remove('hidden');
+        document.getElementById('deleteModal').classList.add('flex');
+    }
+    
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.add('hidden');
+        document.getElementById('deleteModal').classList.remove('flex');
+    }
+    
+    // Close modals on background click
     document.getElementById('editModal').addEventListener('click', function(e) {
         if (e.target === this) {
             closeEditModal();
+        }
+    });
+    
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+    
+    // Close modals with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeEditModal();
+            closeDeleteModal();
         }
     });
 </script>

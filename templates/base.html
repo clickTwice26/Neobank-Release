@@ -301,17 +301,12 @@
         {% block content %}{% endblock %}
     </div>
     
-    <!-- FAB Button -->
-    {% if current_user.is_authenticated %}
-    <a href="{{ url_for('transactions.add') }}" class="fab-button">
-        <i class='bx bx-plus text-3xl'></i>
-    </a>
-    {% endif %}
+ 
     
     <!-- Bottom Navigation -->
     {% if current_user.is_authenticated %}
     <nav class="bottom-nav">
-        <div class="flex justify-around items-center max-w-md mx-auto">
+        <div class="flex justify-around items-center max-w-md mx-auto relative">
             <a href="{{ url_for('dashboard.index') }}" class="flex flex-col items-center gap-1 px-4 py-2 {% if request.endpoint == 'dashboard.index' %}text-accent{% else %}text-text-gray{% endif %}">
                 <i class='bx bx-home text-2xl'></i>
                 <span class="text-xs">Home</span>
@@ -320,6 +315,14 @@
                 <i class='bx bx-list-ul text-2xl'></i>
                 <span class="text-xs">Transactions</span>
             </a>
+            
+            <!-- Floating Add Button -->
+            <a href="{{ url_for('transactions.add') }}" class="flex flex-col items-center">
+                <div class="w-14 h-14 -mt-8 bg-gradient-to-r from-primary to-accent rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform duration-200">
+                    <i class='bx bx-plus text-white text-3xl'></i>
+                </div>
+            </a>
+            
             <a href="{{ url_for('analytics.index') }}" class="flex flex-col items-center gap-1 px-4 py-2 {% if request.endpoint == 'analytics.index' %}text-accent{% else %}text-text-gray{% endif %}">
                 <i class='bx bx-bar-chart-alt-2 text-2xl'></i>
                 <span class="text-xs">Analytics</span>
