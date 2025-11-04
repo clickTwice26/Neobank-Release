@@ -3,17 +3,17 @@
 {% block title %}Analytics - NeoBank{% endblock %}
 
 {% block content %}
-<div class="space-y-6 pb-24">
+<div class="space-y-3 pb-24">
     <!-- Header -->
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between gap-2">
         <div>
-            <h1 class="text-2xl font-bold text-text-dark">Analytics</h1>
-            <p class="text-text-gray text-sm">Insights and trends for {{ period_label }}</p>
+            <h1 class="text-base font-bold text-text-dark">Analytics</h1>
+            <p class="text-[10px] text-text-gray">Insights for {{ period_label }}</p>
         </div>
         
         <!-- Period Selector -->
         <select onchange="window.location.href='?period='+this.value" 
-                class="px-4 py-2 rounded-lg border border-gray-200 text-text-dark bg-white focus:outline-none focus:ring-2 focus:ring-accent">
+                class="px-2 py-1 rounded-lg border border-gray-200 text-text-dark bg-white focus:outline-none focus:ring-1 focus:ring-accent text-[10px]">
             <option value="1month" {% if period == '1month' %}selected{% endif %}>Last Month</option>
             <option value="3months" {% if period == '3months' %}selected{% endif %}>Last 3 Months</option>
             <option value="6months" {% if period == '6months' %}selected{% endif %}>Last 6 Months</option>
@@ -22,56 +22,56 @@
     </div>
     
     <!-- Stats Overview -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-white rounded-xl p-4 shadow-sm">
-            <div class="flex items-center gap-2 mb-2">
-                <i class='bx bx-trending-up text-green-500 text-xl'></i>
-                <p class="text-xs text-text-gray">Income</p>
+    <div class="grid grid-cols-2 gap-2">
+        <div class="bg-white rounded-lg p-2.5 shadow-sm">
+            <div class="flex items-center gap-1 mb-1">
+                <i class='bx bx-trending-up text-green-500 text-sm'></i>
+                <p class="text-[10px] text-text-gray">Income</p>
             </div>
-            <p class="text-2xl font-bold text-text-dark">{{ total_income | currency }}</p>
+            <p class="text-sm font-bold text-text-dark">{{ total_income | currency }}</p>
         </div>
         
-        <div class="bg-white rounded-xl p-4 shadow-sm">
-            <div class="flex items-center gap-2 mb-2">
-                <i class='bx bx-trending-down text-red-500 text-xl'></i>
-                <p class="text-xs text-text-gray">Expenses</p>
+        <div class="bg-white rounded-lg p-2.5 shadow-sm">
+            <div class="flex items-center gap-1 mb-1">
+                <i class='bx bx-trending-down text-red-500 text-sm'></i>
+                <p class="text-[10px] text-text-gray">Expenses</p>
             </div>
-            <p class="text-2xl font-bold text-text-dark">{{ total_expense | currency }}</p>
+            <p class="text-sm font-bold text-text-dark">{{ total_expense | currency }}</p>
         </div>
         
-        <div class="bg-white rounded-xl p-4 shadow-sm">
-            <div class="flex items-center gap-2 mb-2">
-                <i class='bx bx-wallet text-accent text-xl'></i>
-                <p class="text-xs text-text-gray">Balance</p>
+        <div class="bg-white rounded-lg p-2.5 shadow-sm">
+            <div class="flex items-center gap-1 mb-1">
+                <i class='bx bx-wallet text-accent text-sm'></i>
+                <p class="text-[10px] text-text-gray">Balance</p>
             </div>
-            <p class="text-2xl font-bold {% if balance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+            <p class="text-sm font-bold {% if balance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
                 {{ balance | currency }}
             </p>
         </div>
         
-        <div class="bg-white rounded-xl p-4 shadow-sm">
-            <div class="flex items-center gap-2 mb-2">
-                <i class='bx bx-receipt text-blue-500 text-xl'></i>
-                <p class="text-xs text-text-gray">Transactions</p>
+        <div class="bg-white rounded-lg p-2.5 shadow-sm">
+            <div class="flex items-center gap-1 mb-1">
+                <i class='bx bx-receipt text-blue-500 text-sm'></i>
+                <p class="text-[10px] text-text-gray">Transactions</p>
             </div>
-            <p class="text-2xl font-bold text-text-dark">{{ transaction_count }}</p>
+            <p class="text-sm font-bold text-text-dark">{{ transaction_count }}</p>
         </div>
     </div>
     
     <!-- Insights Section -->
     {% if insights %}
-    <div class="bg-white rounded-xl p-6 shadow-sm">
-        <h2 class="text-lg font-bold text-text-dark mb-4 flex items-center gap-2">
-            <i class='bx bx-bulb text-accent'></i>
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+        <h2 class="text-xs font-bold text-text-dark mb-2 flex items-center gap-1.5">
+            <i class='bx bx-bulb text-accent text-sm'></i>
             Smart Insights
         </h2>
-        <div class="space-y-3">
+        <div class="space-y-2">
             {% for insight in insights %}
-            <div class="flex items-start gap-3 p-3 rounded-lg {% if insight.type == 'warning' %}bg-yellow-50{% elif insight.type == 'success' %}bg-green-50{% else %}bg-blue-50{% endif %}">
-                <i class='bx {{ insight.icon }} text-2xl {% if insight.type == "warning" %}text-yellow-600{% elif insight.type == "success" %}text-green-600{% else %}text-blue-600{% endif %}'></i>
-                <div>
-                    <p class="font-semibold text-text-dark">{{ insight.title }}</p>
-                    <p class="text-sm text-text-gray">{{ insight.message }}</p>
+            <div class="flex items-start gap-2 p-2 rounded-lg {% if insight.type == 'warning' %}bg-yellow-50{% elif insight.type == 'success' %}bg-green-50{% else %}bg-blue-50{% endif %}">
+                <i class='bx {{ insight.icon }} text-base {% if insight.type == "warning" %}text-yellow-600{% elif insight.type == "success" %}text-green-600{% else %}text-blue-600{% endif %}'></i>
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-text-dark text-[10px]">{{ insight.title }}</p>
+                    <p class="text-[9px] text-text-gray">{{ insight.message }}</p>
                 </div>
             </div>
             {% endfor %}
@@ -80,29 +80,29 @@
     {% endif %}
     
     <!-- Spending Trends Chart -->
-    <div class="bg-white rounded-xl p-6 shadow-sm">
-        <h2 class="text-lg font-bold text-text-dark mb-4 flex items-center gap-2">
-            <i class='bx bx-line-chart text-accent'></i>
-            Income vs Expenses Trend
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+        <h2 class="text-xs font-bold text-text-dark mb-2 flex items-center gap-1.5">
+            <i class='bx bx-line-chart text-accent text-sm'></i>
+            Income vs Expenses
         </h2>
-        <canvas id="trendsChart" height="100"></canvas>
+        <canvas id="trendsChart" height="120"></canvas>
     </div>
     
     <!-- Category Breakdown -->
-    <div class="grid md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 gap-3">
         <!-- Expense Categories -->
-        <div class="bg-white rounded-xl p-6 shadow-sm">
-            <h2 class="text-lg font-bold text-text-dark mb-4 flex items-center gap-2">
-                <i class='bx bx-pie-chart-alt-2 text-accent'></i>
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <h2 class="text-xs font-bold text-text-dark mb-2 flex items-center gap-1.5">
+                <i class='bx bx-pie-chart-alt-2 text-accent text-sm'></i>
                 Expense Categories
             </h2>
             <canvas id="expenseCategoriesChart" height="200"></canvas>
         </div>
         
         <!-- Income Categories -->
-        <div class="bg-white rounded-xl p-6 shadow-sm">
-            <h2 class="text-lg font-bold text-text-dark mb-4 flex items-center gap-2">
-                <i class='bx bx-pie-chart-alt text-accent'></i>
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <h2 class="text-xs font-bold text-text-dark mb-2 flex items-center gap-1.5">
+                <i class='bx bx-pie-chart-alt text-accent text-sm'></i>
                 Income Categories
             </h2>
             <canvas id="incomeCategoriesChart" height="200"></canvas>
@@ -110,44 +110,44 @@
     </div>
     
     <!-- Daily Spending Pattern -->
-    <div class="bg-white rounded-xl p-6 shadow-sm">
-        <h2 class="text-lg font-bold text-text-dark mb-4 flex items-center gap-2">
-            <i class='bx bx-bar-chart text-accent'></i>
-            Average Spending by Day
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+        <h2 class="text-xs font-bold text-text-dark mb-2 flex items-center gap-1.5">
+            <i class='bx bx-bar-chart text-accent text-sm'></i>
+            Daily Spending Pattern
         </h2>
-        <canvas id="dayPatternChart" height="100"></canvas>
+        <canvas id="dayPatternChart" height="120"></canvas>
     </div>
     
     <!-- Predictions -->
-    <div class="bg-gradient-to-br from-accent to-green-600 rounded-xl p-6 shadow-sm text-white">
-        <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
-            <i class='bx bx-crystal-ball'></i>
+    <div class="bg-gradient-to-br from-accent to-green-600 rounded-lg p-3 shadow-sm text-white">
+        <h2 class="text-xs font-bold mb-2 flex items-center gap-1.5">
+            <i class='bx bx-crystal-ball text-sm'></i>
             Next Month Prediction
         </h2>
-        <div id="predictions" class="space-y-4">
-            <div class="flex justify-center items-center py-4">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+        <div id="predictions" class="space-y-2">
+            <div class="flex justify-center items-center py-3">
+                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
             </div>
         </div>
     </div>
     
     <!-- Top Categories List -->
-    <div class="bg-white rounded-xl p-6 shadow-sm">
-        <h2 class="text-lg font-bold text-text-dark mb-4 flex items-center gap-2">
-            <i class='bx bx-list-ul text-accent'></i>
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+        <h2 class="text-xs font-bold text-text-dark mb-2 flex items-center gap-1.5">
+            <i class='bx bx-list-ul text-accent text-sm'></i>
             Top Spending Categories
         </h2>
-        <div class="space-y-3">
+        <div class="space-y-2">
             {% for category, amount in top_categories %}
-            <div class="flex items-center justify-between p-3 bg-bg-light rounded-lg">
-                <div class="flex items-center gap-3">
-                    <div class="w-2 h-2 rounded-full bg-accent"></div>
-                    <p class="font-semibold text-text-dark">{{ category }}</p>
+            <div class="flex items-center justify-between p-2 bg-bg-light rounded-lg">
+                <div class="flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 rounded-full bg-accent"></div>
+                    <p class="font-semibold text-text-dark text-[10px]">{{ category }}</p>
                 </div>
                 <div class="text-right">
-                    <p class="font-bold text-text-dark">{{ amount | currency }}</p>
-                    <p class="text-xs text-text-gray">
-                        {{ (amount / total_expense * 100) | round(1) }}% of expenses
+                    <p class="font-bold text-text-dark text-xs">{{ amount | currency }}</p>
+                    <p class="text-[9px] text-text-gray">
+                        {{ (amount / total_expense * 100) | round(1) }}%
                     </p>
                 </div>
             </div>
@@ -156,55 +156,54 @@
     </div>
     
     <!-- Daily Averages -->
-    <div class="grid md:grid-cols-2 gap-6">
-        <div class="bg-white rounded-xl p-6 shadow-sm">
-            <div class="flex items-center justify-between mb-2">
-                <p class="text-text-gray">Avg. Daily Income</p>
-                <i class='bx bx-trending-up text-green-500 text-2xl'></i>
+    <div class="grid grid-cols-2 gap-2">
+        <div class="bg-white rounded-lg p-2.5 shadow-sm">
+            <div class="flex items-center justify-between mb-1">
+                <p class="text-[10px] text-text-gray">Avg. Daily Income</p>
+                <i class='bx bx-trending-up text-green-500 text-base'></i>
             </div>
-            <p class="text-3xl font-bold text-text-dark">{{ avg_daily_income | currency }}</p>
-            <p class="text-xs text-text-gray mt-2">Based on {{ period_label.lower() }}</p>
+            <p class="text-sm font-bold text-text-dark">{{ avg_daily_income | currency }}</p>
+            <p class="text-[9px] text-text-gray mt-0.5">{{ period_label.lower() }}</p>
         </div>
         
-        <div class="bg-white rounded-xl p-6 shadow-sm">
-            <div class="flex items-center justify-between mb-2">
-                <p class="text-text-gray">Avg. Daily Expense</p>
-                <i class='bx bx-trending-down text-red-500 text-2xl'></i>
+        <div class="bg-white rounded-lg p-2.5 shadow-sm">
+            <div class="flex items-center justify-between mb-1">
+                <p class="text-[10px] text-text-gray">Avg. Daily Expense</p>
+                <i class='bx bx-trending-down text-red-500 text-base'></i>
             </div>
-            <p class="text-3xl font-bold text-text-dark">{{ avg_daily_expense | currency }}</p>
-            <p class="text-xs text-text-gray mt-2">Based on {{ period_label.lower() }}</p>
+            <p class="text-sm font-bold text-text-dark">{{ avg_daily_expense | currency }}</p>
+            <p class="text-[9px] text-text-gray mt-0.5">{{ period_label.lower() }}</p>
         </div>
     </div>
     
     <!-- Monthly Breakdown Table -->
-    <div class="bg-white rounded-xl p-6 shadow-sm">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-bold text-text-dark flex items-center gap-2">
-                <i class='bx bx-table text-accent'></i>
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+            <h2 class="text-xs font-bold text-text-dark flex items-center gap-1.5">
+                <i class='bx bx-table text-accent text-sm'></i>
                 Monthly Breakdown
             </h2>
         </div>
         
         <div id="monthlyTableContainer">
-            <div class="flex justify-center items-center py-8">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+            <div class="flex justify-center items-center py-6">
+                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-accent"></div>
             </div>
         </div>
     </div>
     
     <!-- Product-wise Breakdown -->
-    <div class="bg-white rounded-xl p-6 shadow-sm">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-bold text-text-dark flex items-center gap-2">
-                <i class='bx bx-package text-accent'></i>
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+            <h2 class="text-xs font-bold text-text-dark flex items-center gap-1.5">
+                <i class='bx bx-package text-accent text-sm'></i>
                 Product-wise Analysis
             </h2>
-            <p class="text-sm text-text-gray">Transactions grouped by product</p>
         </div>
         
         <div id="productTableContainer">
-            <div class="flex justify-center items-center py-8">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+            <div class="flex justify-center items-center py-6">
+                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-accent"></div>
             </div>
         </div>
     </div>
@@ -225,6 +224,7 @@
         
         // Chart.js default configuration
         Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.font.size = 10;
         Chart.defaults.color = '#6B7280';
         
         // Trends Chart
@@ -396,8 +396,8 @@
             
             if (data.message) {
                 predictionsDiv.innerHTML = `
-                    <div class="text-center py-4">
-                        <p class="text-white opacity-90">${data.message}</p>
+                    <div class="text-center py-3">
+                        <p class="text-white opacity-90 text-[10px]">${data.message}</p>
                     </div>
                 `;
                 return;
@@ -407,29 +407,29 @@
                             data.trend === 'decreasing' ? 'bx-trending-down' : 'bx-minus';
             
             predictionsDiv.innerHTML = `
-                <div class="grid grid-cols-3 gap-4 mb-4">
+                <div class="grid grid-cols-3 gap-2 mb-3">
                     <div class="text-center">
-                        <p class="text-sm opacity-90">Expected Income</p>
-                        <p class="text-2xl font-bold">৳${data.next_month.income.toFixed(2)}</p>
+                        <p class="text-[10px] opacity-90">Expected Income</p>
+                        <p class="text-sm font-bold">৳${data.next_month.income.toFixed(2)}</p>
                     </div>
                     <div class="text-center">
-                        <p class="text-sm opacity-90">Expected Expenses</p>
-                        <p class="text-2xl font-bold">৳${data.next_month.expense.toFixed(2)}</p>
+                        <p class="text-[10px] opacity-90">Expected Expenses</p>
+                        <p class="text-sm font-bold">৳${data.next_month.expense.toFixed(2)}</p>
                     </div>
                     <div class="text-center">
-                        <p class="text-sm opacity-90">Projected Savings</p>
-                        <p class="text-2xl font-bold">৳${data.next_month.savings.toFixed(2)}</p>
+                        <p class="text-[10px] opacity-90">Projected Savings</p>
+                        <p class="text-sm font-bold">৳${data.next_month.savings.toFixed(2)}</p>
                     </div>
                 </div>
                 
-                <div class="flex items-center justify-center gap-2 mb-4">
-                    <i class='bx ${trendIcon} text-2xl'></i>
-                    <p class="text-lg">Spending trend: <span class="font-bold">${data.trend}</span></p>
+                <div class="flex items-center justify-center gap-2 mb-3">
+                    <i class='bx ${trendIcon} text-base'></i>
+                    <p class="text-xs">Spending trend: <span class="font-bold">${data.trend}</span></p>
                 </div>
                 
                 ${data.recommendations.map(rec => `
-                    <div class="bg-white bg-opacity-20 rounded-lg p-3 mb-2">
-                        <p class="text-sm">${rec.message}</p>
+                    <div class="bg-white bg-opacity-20 rounded-lg p-2 mb-2">
+                        <p class="text-[10px]">${rec.message}</p>
                     </div>
                 `).join('')}
             `;
@@ -443,9 +443,9 @@
             
             if (!data.breakdown || data.breakdown.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-8">
-                        <i class='bx bx-calendar-x text-6xl text-text-gray opacity-30'></i>
-                        <p class="text-text-gray mt-2">No transaction data available</p>
+                    <div class="text-center py-6">
+                        <i class='bx bx-calendar-x text-4xl text-text-gray opacity-30'></i>
+                        <p class="text-text-gray text-xs mt-2">No transaction data available</p>
                     </div>
                 `;
                 return;
@@ -453,32 +453,32 @@
             
             container.innerHTML = `
                 <div class="overflow-x-auto">
-                    <table class="w-full">
+                    <table class="w-full text-[10px]">
                         <thead>
                             <tr class="border-b border-gray-200">
-                                <th class="text-left py-3 px-4 font-semibold text-text-dark">Month</th>
-                                <th class="text-right py-3 px-4 font-semibold text-green-600">Income</th>
-                                <th class="text-right py-3 px-4 font-semibold text-red-600">Expenses</th>
-                                <th class="text-right py-3 px-4 font-semibold text-blue-600">Borrow</th>
-                                <th class="text-right py-3 px-4 font-semibold text-accent">Net</th>
-                                <th class="text-right py-3 px-4 font-semibold text-text-gray">Savings %</th>
+                                <th class="text-left py-2 px-2 font-semibold text-text-dark">Month</th>
+                                <th class="text-right py-2 px-2 font-semibold text-green-600">Income</th>
+                                <th class="text-right py-2 px-2 font-semibold text-red-600">Expenses</th>
+                                <th class="text-right py-2 px-2 font-semibold text-blue-600">Borrow</th>
+                                <th class="text-right py-2 px-2 font-semibold text-accent">Net</th>
+                                <th class="text-right py-2 px-2 font-semibold text-text-gray">Save %</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${data.breakdown.map((item, index) => `
                                 <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
-                                    <td class="py-3 px-4 font-medium text-text-dark">${item.month}</td>
-                                    <td class="py-3 px-4 text-right text-green-600 font-semibold">৳${item.income.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                                    <td class="py-3 px-4 text-right text-red-600 font-semibold">৳${item.expense.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                                    <td class="py-3 px-4 text-right text-blue-600 font-semibold">৳${item.borrow.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                                    <td class="py-3 px-4 text-right font-bold ${item.net >= 0 ? 'text-accent' : 'text-red-600'}">
+                                    <td class="py-2 px-2 font-medium text-text-dark">${item.month}</td>
+                                    <td class="py-2 px-2 text-right text-green-600 font-semibold">৳${item.income.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                    <td class="py-2 px-2 text-right text-red-600 font-semibold">৳${item.expense.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                    <td class="py-2 px-2 text-right text-blue-600 font-semibold">৳${item.borrow.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                    <td class="py-2 px-2 text-right font-bold ${item.net >= 0 ? 'text-accent' : 'text-red-600'}">
                                         ৳${item.net.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                     </td>
-                                    <td class="py-3 px-4 text-right text-text-gray">
+                                    <td class="py-2 px-2 text-right text-text-gray">
                                         <span class="inline-flex items-center gap-1">
                                             ${item.savings_rate >= 0 ? 
-                                                `<i class='bx bx-trending-up text-green-500'></i>` : 
-                                                `<i class='bx bx-trending-down text-red-500'></i>`
+                                                `<i class='bx bx-trending-up text-green-500 text-xs'></i>` : 
+                                                `<i class='bx bx-trending-down text-red-500 text-xs'></i>`
                                             }
                                             ${Math.abs(item.savings_rate).toFixed(1)}%
                                         </span>
@@ -488,14 +488,14 @@
                         </tbody>
                         <tfoot class="bg-gray-50 font-bold">
                             <tr class="border-t-2 border-gray-300">
-                                <td class="py-4 px-4 text-text-dark">Total</td>
-                                <td class="py-4 px-4 text-right text-green-600">৳${data.totals.income.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                                <td class="py-4 px-4 text-right text-red-600">৳${data.totals.expense.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                                <td class="py-4 px-4 text-right text-blue-600">৳${data.totals.borrow.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                                <td class="py-4 px-4 text-right ${data.totals.net >= 0 ? 'text-accent' : 'text-red-600'}">
+                                <td class="py-2.5 px-2 text-text-dark">Total</td>
+                                <td class="py-2.5 px-2 text-right text-green-600">৳${data.totals.income.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td class="py-2.5 px-2 text-right text-red-600">৳${data.totals.expense.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td class="py-2.5 px-2 text-right text-blue-600">৳${data.totals.borrow.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td class="py-2.5 px-2 text-right ${data.totals.net >= 0 ? 'text-accent' : 'text-red-600'}">
                                     ৳${data.totals.net.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                 </td>
-                                <td class="py-4 px-4 text-right text-text-gray">
+                                <td class="py-2.5 px-2 text-right text-text-gray">
                                     ${((data.totals.net / data.totals.income) * 100).toFixed(1)}%
                                 </td>
                             </tr>
@@ -507,8 +507,8 @@
         .catch(error => {
             console.error('Error loading monthly breakdown:', error);
             document.getElementById('monthlyTableContainer').innerHTML = `
-                <div class="text-center py-8">
-                    <p class="text-red-600">Failed to load monthly breakdown</p>
+                <div class="text-center py-6">
+                    <p class="text-red-600 text-xs">Failed to load monthly breakdown</p>
                 </div>
             `;
         });
@@ -521,10 +521,10 @@
             
             if (!data.products || data.products.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-8">
-                        <i class='bx bx-package text-6xl text-text-gray opacity-30'></i>
-                        <p class="text-text-gray mt-2">No product data available</p>
-                        <p class="text-text-gray text-sm">Start adding product names to your transactions</p>
+                    <div class="text-center py-6">
+                        <i class='bx bx-package text-4xl text-text-gray opacity-30'></i>
+                        <p class="text-text-gray text-xs mt-2">No product data available</p>
+                        <p class="text-text-gray text-[10px]">Start adding product names to your transactions</p>
                     </div>
                 `;
                 return;
@@ -532,40 +532,40 @@
             
             container.innerHTML = `
                 <div class="overflow-x-auto">
-                    <table class="w-full">
+                    <table class="w-full text-[10px]">
                         <thead>
                             <tr class="border-b border-gray-200">
-                                <th class="text-left py-3 px-4 font-semibold text-text-dark">Product Name</th>
-                                <th class="text-right py-3 px-4 font-semibold text-green-600">Income</th>
-                                <th class="text-right py-3 px-4 font-semibold text-red-600">Expenses</th>
-                                <th class="text-right py-3 px-4 font-semibold text-blue-600">Borrow</th>
-                                <th class="text-right py-3 px-4 font-semibold text-accent">Total</th>
-                                <th class="text-center py-3 px-4 font-semibold text-text-gray">Transactions</th>
+                                <th class="text-left py-2 px-2 font-semibold text-text-dark">Product Name</th>
+                                <th class="text-right py-2 px-2 font-semibold text-green-600">Income</th>
+                                <th class="text-right py-2 px-2 font-semibold text-red-600">Expenses</th>
+                                <th class="text-right py-2 px-2 font-semibold text-blue-600">Borrow</th>
+                                <th class="text-right py-2 px-2 font-semibold text-accent">Total</th>
+                                <th class="text-center py-2 px-2 font-semibold text-text-gray">Count</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${data.products.map((item, index) => `
                                 <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
-                                    <td class="py-3 px-4">
-                                        <div class="flex items-center gap-2">
-                                            <i class='bx bx-package text-accent text-xl'></i>
+                                    <td class="py-2 px-2">
+                                        <div class="flex items-center gap-1.5">
+                                            <i class='bx bx-package text-accent text-sm'></i>
                                             <span class="font-medium text-text-dark">${item.product}</span>
                                         </div>
                                     </td>
-                                    <td class="py-3 px-4 text-right ${item.income > 0 ? 'text-green-600 font-semibold' : 'text-text-gray'}">
+                                    <td class="py-2 px-2 text-right ${item.income > 0 ? 'text-green-600 font-semibold' : 'text-text-gray'}">
                                         ${item.income > 0 ? '৳' + item.income.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}
                                     </td>
-                                    <td class="py-3 px-4 text-right ${item.expense > 0 ? 'text-red-600 font-semibold' : 'text-text-gray'}">
+                                    <td class="py-2 px-2 text-right ${item.expense > 0 ? 'text-red-600 font-semibold' : 'text-text-gray'}">
                                         ${item.expense > 0 ? '৳' + item.expense.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}
                                     </td>
-                                    <td class="py-3 px-4 text-right ${item.borrow > 0 ? 'text-blue-600 font-semibold' : 'text-text-gray'}">
+                                    <td class="py-2 px-2 text-right ${item.borrow > 0 ? 'text-blue-600 font-semibold' : 'text-text-gray'}">
                                         ${item.borrow > 0 ? '৳' + item.borrow.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}
                                     </td>
-                                    <td class="py-3 px-4 text-right font-bold text-accent">
+                                    <td class="py-2 px-2 text-right font-bold text-accent">
                                         ৳${item.total.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                     </td>
-                                    <td class="py-3 px-4 text-center">
-                                        <span class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-gray-100 text-text-dark text-sm font-semibold">
+                                    <td class="py-2 px-2 text-center">
+                                        <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-gray-100 text-text-dark font-semibold">
                                             ${item.count}
                                         </span>
                                     </td>
@@ -574,37 +574,37 @@
                         </tbody>
                         <tfoot class="bg-gray-50 font-bold">
                             <tr class="border-t-2 border-gray-300">
-                                <td class="py-4 px-4 text-text-dark">Total</td>
-                                <td class="py-4 px-4 text-right text-green-600">৳${data.totals.income.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                                <td class="py-4 px-4 text-right text-red-600">৳${data.totals.expense.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                                <td class="py-4 px-4 text-right text-blue-600">৳${data.totals.borrow.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                                <td class="py-4 px-4 text-right text-accent">৳${data.totals.total.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                                <td class="py-4 px-4 text-center text-text-gray">${data.totals.count}</td>
+                                <td class="py-2.5 px-2 text-text-dark">Total</td>
+                                <td class="py-2.5 px-2 text-right text-green-600">৳${data.totals.income.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td class="py-2.5 px-2 text-right text-red-600">৳${data.totals.expense.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td class="py-2.5 px-2 text-right text-blue-600">৳${data.totals.borrow.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td class="py-2.5 px-2 text-right text-accent">৳${data.totals.total.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td class="py-2.5 px-2 text-center text-text-gray">${data.totals.count}</td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
                 
                 <!-- Summary Stats -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t">
-                    <div class="text-center">
-                        <p class="text-sm text-text-gray mb-1">Unique Products</p>
-                        <p class="text-2xl font-bold text-accent">${data.products.length}</p>
+                <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t">
+                    <div class="text-center p-2 bg-bg-light rounded-lg">
+                        <p class="text-[10px] text-text-gray mb-0.5">Unique Products</p>
+                        <p class="text-sm font-bold text-accent">${data.products.length}</p>
                     </div>
-                    <div class="text-center">
-                        <p class="text-sm text-text-gray mb-1">Most Expensive</p>
-                        <p class="text-lg font-bold text-red-600">${data.products.find(p => p.expense > 0)?.product || 'N/A'}</p>
-                        <p class="text-xs text-text-gray">৳${(data.products.find(p => p.expense > 0)?.expense || 0).toFixed(2)}</p>
+                    <div class="text-center p-2 bg-bg-light rounded-lg">
+                        <p class="text-[10px] text-text-gray mb-0.5">Most Expensive</p>
+                        <p class="text-xs font-bold text-red-600">${data.products.find(p => p.expense > 0)?.product || 'N/A'}</p>
+                        <p class="text-[9px] text-text-gray">৳${(data.products.find(p => p.expense > 0)?.expense || 0).toFixed(2)}</p>
                     </div>
-                    <div class="text-center">
-                        <p class="text-sm text-text-gray mb-1">Most Profitable</p>
-                        <p class="text-lg font-bold text-green-600">${data.products.find(p => p.income > 0)?.product || 'N/A'}</p>
-                        <p class="text-xs text-text-gray">৳${(data.products.find(p => p.income > 0)?.income || 0).toFixed(2)}</p>
+                    <div class="text-center p-2 bg-bg-light rounded-lg">
+                        <p class="text-[10px] text-text-gray mb-0.5">Most Profitable</p>
+                        <p class="text-xs font-bold text-green-600">${data.products.find(p => p.income > 0)?.product || 'N/A'}</p>
+                        <p class="text-[9px] text-text-gray">৳${(data.products.find(p => p.income > 0)?.income || 0).toFixed(2)}</p>
                     </div>
-                    <div class="text-center">
-                        <p class="text-sm text-text-gray mb-1">Most Frequent</p>
-                        <p class="text-lg font-bold text-blue-600">${data.products[0]?.product || 'N/A'}</p>
-                        <p class="text-xs text-text-gray">${data.products[0]?.count || 0} transactions</p>
+                    <div class="text-center p-2 bg-bg-light rounded-lg">
+                        <p class="text-[10px] text-text-gray mb-0.5">Most Frequent</p>
+                        <p class="text-xs font-bold text-blue-600">${data.products[0]?.product || 'N/A'}</p>
+                        <p class="text-[9px] text-text-gray">${data.products[0]?.count || 0} times</p>
                     </div>
                 </div>
             `;
@@ -612,8 +612,8 @@
         .catch(error => {
             console.error('Error loading product breakdown:', error);
             document.getElementById('productTableContainer').innerHTML = `
-                <div class="text-center py-8">
-                    <p class="text-red-600">Failed to load product breakdown</p>
+                <div class="text-center py-6">
+                    <p class="text-red-600 text-xs">Failed to load product breakdown</p>
                 </div>
             `;
         });

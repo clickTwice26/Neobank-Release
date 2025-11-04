@@ -3,100 +3,99 @@
 {% block title %}Daily Expense Limit - NeoBank{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto space-y-6">
+<div class="space-y-3 pb-24">
     <!-- Header -->
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2">
         <a href="{{ url_for('settings.index') }}" 
-           class="w-10 h-10 rounded-lg bg-white flex items-center justify-center hover:bg-gray-100 transition shadow-sm">
-            <i class='bx bx-arrow-back text-xl text-text-dark'></i>
+           class="w-8 h-8 rounded-lg bg-white flex items-center justify-center hover:bg-gray-100 transition shadow-sm">
+            <i class='bx bx-arrow-back text-base text-text-dark'></i>
         </a>
         <div>
-            <h1 class="text-2xl font-bold text-text-dark">Daily Expense Limit</h1>
-            <p class="text-text-gray text-sm">Set your daily spending limit</p>
+            <h1 class="text-base font-bold text-text-dark">Daily Expense Limit</h1>
+            <p class="text-text-gray text-[10px]">Set your daily spending limit</p>
         </div>
     </div>
     
     <!-- Info Card -->
-    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
-        <div class="flex items-start gap-3">
-            <i class='bx bx-info-circle text-blue-600 text-2xl'></i>
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+        <div class="flex items-start gap-2">
+            <i class='bx bx-info-circle text-blue-600 text-base'></i>
             <div>
-                <p class="font-semibold text-blue-900 mb-1">How it works</p>
-                <p class="text-sm text-blue-700">
-                    Set a daily expense limit to help control your spending. You'll receive warnings when you approach or exceed this limit. 
-                    This helps you stay within budget and develop better spending habits.
+                <p class="font-semibold text-blue-900 text-xs mb-1">How it works</p>
+                <p class="text-[10px] text-blue-700">
+                    Set a daily expense limit to help control your spending. You'll receive warnings when you approach or exceed this limit.
                 </p>
             </div>
         </div>
     </div>
     
     <!-- Current Status -->
-    <div class="bg-white rounded-xl p-6 shadow-sm">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-bold text-text-dark">Current Limit</h2>
-            <div class="text-3xl font-bold text-accent">৳{{ current_limit | round(2) }}</div>
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+            <h2 class="text-xs font-bold text-text-dark">Current Limit</h2>
+            <div class="text-base font-bold text-accent">৳{{ current_limit | round(2) }}</div>
         </div>
-        <p class="text-sm text-text-gray">
-            This is your current daily spending limit. You'll be notified when your daily expenses approach this amount.
+        <p class="text-[10px] text-text-gray">
+            You'll be notified when your daily expenses approach this amount.
         </p>
     </div>
     
     <!-- Update Form -->
-    <div class="bg-white rounded-xl p-6 shadow-sm">
-        <h2 class="text-lg font-bold text-text-dark mb-4">Update Limit</h2>
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+        <h2 class="text-xs font-bold text-text-dark mb-3">Update Limit</h2>
         
-        <form method="POST" class="space-y-6">
+        <form method="POST" class="space-y-3">
             <div class="floating-label-input">
                 <input type="number" step="0.01" name="daily_limit" id="daily_limit" 
                        placeholder=" " required
                        value="{{ current_limit }}"
                        min="0"
-                       class="text-text-dark">
-                <label for="daily_limit">Daily Expense Limit (৳)</label>
+                       class="text-text-dark text-xs">
+                <label for="daily_limit" class="text-[10px]">Daily Expense Limit (৳)</label>
             </div>
             
             <!-- Suggested Limits -->
             <div>
-                <p class="text-sm text-text-gray mb-3">Quick suggestions:</p>
+                <p class="text-[10px] text-text-gray mb-2">Quick suggestions:</p>
                 <div class="grid grid-cols-4 gap-2">
                     <button type="button" onclick="setLimit(500)" 
-                            class="px-4 py-2 bg-bg-light hover:bg-accent hover:text-white rounded-lg text-sm font-semibold transition">
+                            class="px-2 py-1.5 bg-bg-light hover:bg-accent hover:text-white rounded-lg text-[10px] font-semibold transition">
                         ৳500
                     </button>
                     <button type="button" onclick="setLimit(1000)" 
-                            class="px-4 py-2 bg-bg-light hover:bg-accent hover:text-white rounded-lg text-sm font-semibold transition">
-                        ৳1,000
+                            class="px-2 py-1.5 bg-bg-light hover:bg-accent hover:text-white rounded-lg text-[10px] font-semibold transition">
+                        ৳1K
                     </button>
                     <button type="button" onclick="setLimit(2000)" 
-                            class="px-4 py-2 bg-bg-light hover:bg-accent hover:text-white rounded-lg text-sm font-semibold transition">
-                        ৳2,000
+                            class="px-2 py-1.5 bg-bg-light hover:bg-accent hover:text-white rounded-lg text-[10px] font-semibold transition">
+                        ৳2K
                     </button>
                     <button type="button" onclick="setLimit(5000)" 
-                            class="px-4 py-2 bg-bg-light hover:bg-accent hover:text-white rounded-lg text-sm font-semibold transition">
-                        ৳5,000
+                            class="px-2 py-1.5 bg-bg-light hover:bg-accent hover:text-white rounded-lg text-[10px] font-semibold transition">
+                        ৳5K
                     </button>
                 </div>
             </div>
             
             <!-- Warning Levels -->
-            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <p class="text-sm font-semibold text-yellow-900 mb-2">Warning Levels:</p>
-                <ul class="text-sm text-yellow-700 space-y-1">
-                    <li>• <span class="font-semibold">70%</span> - Info notification (you're approaching your limit)</li>
-                    <li>• <span class="font-semibold">90%</span> - Warning (getting close to limit)</li>
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-2.5">
+                <p class="text-[10px] font-semibold text-yellow-900 mb-1.5">Warning Levels:</p>
+                <ul class="text-[9px] text-yellow-700 space-y-1">
+                    <li>• <span class="font-semibold">70%</span> - Info notification (approaching limit)</li>
+                    <li>• <span class="font-semibold">90%</span> - Warning (close to limit)</li>
                     <li>• <span class="font-semibold">100%+</span> - Alert (limit exceeded)</li>
                 </ul>
             </div>
             
             <!-- Submit Buttons -->
-            <div class="flex gap-3 pt-4">
+            <div class="flex gap-2 pt-2">
                 <button type="submit" 
-                        class="flex-1 bg-accent text-white py-3 rounded-lg font-semibold hover:bg-green-600 transition shadow-sm">
-                    <i class='bx bx-check mr-2'></i>
+                        class="flex-1 bg-accent text-white py-2 rounded-lg font-semibold text-xs hover:bg-green-600 transition shadow-sm">
+                    <i class='bx bx-check text-sm mr-1'></i>
                     Save Limit
                 </button>
                 <a href="{{ url_for('settings.index') }}" 
-                   class="px-6 bg-gray-200 text-text-dark py-3 rounded-lg font-semibold hover:bg-gray-300 transition">
+                   class="px-4 bg-gray-200 text-text-dark py-2 rounded-lg font-semibold text-xs hover:bg-gray-300 transition">
                     Cancel
                 </a>
             </div>

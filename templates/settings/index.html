@@ -3,104 +3,115 @@
 {% block title %}Settings - NeoBank{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto space-y-6">
+<div class="space-y-3 pb-24">
     <!-- Header -->
-    <div>
-        <h1 class="text-2xl font-bold text-text-dark">Settings</h1>
-        <p class="text-text-gray text-sm">Manage your account and preferences</p>
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+        <h1 class="text-base font-bold text-text-dark">Settings</h1>
+        <p class="text-text-gray text-[10px]">Manage your account and preferences</p>
     </div>
     
     <!-- Settings Grid -->
-    <div class="grid md:grid-cols-2 gap-4">
+    <div class="space-y-2">
         <!-- Daily Expense Limit -->
         <a href="{{ url_for('settings.daily_limit') }}" 
-           class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition group">
-            <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center group-hover:bg-red-200 transition">
-                    <i class='bx bx-dollar-circle text-2xl text-red-600'></i>
-                </div>
-                <div class="flex-1">
-                    <h3 class="font-semibold text-text-dark mb-1">Daily Expense Limit</h3>
-                    <p class="text-sm text-text-gray">Set and manage your daily spending limit</p>
-                </div>
-                <i class='bx bx-chevron-right text-2xl text-text-gray group-hover:text-accent transition'></i>
+           class="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition group flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-red-100 flex items-center justify-center group-hover:bg-red-200 transition flex-shrink-0">
+                <i class='bx bx-dollar-circle text-base text-red-600'></i>
             </div>
+            <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-text-dark text-xs">Daily Expense Limit</h3>
+                <p class="text-[10px] text-text-gray">Set your daily spending limit</p>
+            </div>
+            <i class='bx bx-chevron-right text-base text-text-gray group-hover:text-accent transition'></i>
         </a>
         
         <!-- Categories -->
         <a href="{{ url_for('settings.categories') }}" 
-           class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition group">
-            <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-lg bg-accent bg-opacity-10 flex items-center justify-center group-hover:bg-opacity-20 transition">
-                    <i class='bx bx-category text-2xl text-accent'></i>
-                </div>
-                <div class="flex-1">
-                    <h3 class="font-semibold text-text-dark mb-1">Categories</h3>
-                    <p class="text-sm text-text-gray">Manage your transaction categories</p>
-                </div>
-                <i class='bx bx-chevron-right text-2xl text-text-gray group-hover:text-accent transition'></i>
+           class="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition group flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-accent bg-opacity-10 flex items-center justify-center group-hover:bg-opacity-20 transition flex-shrink-0">
+                <i class='bx bx-category text-base text-accent'></i>
             </div>
+            <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-text-dark text-xs">Categories</h3>
+                <p class="text-[10px] text-text-gray">Manage transaction categories</p>
+            </div>
+            <i class='bx bx-chevron-right text-base text-text-gray group-hover:text-accent transition'></i>
         </a>
         
         <!-- Change Password -->
         <a href="{{ url_for('settings.change_password') }}" 
-           class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition group">
-            <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center group-hover:bg-red-200 transition">
-                    <i class='bx bx-lock text-2xl text-feedback-red'></i>
-                </div>
-                <div class="flex-1">
-                    <h3 class="font-semibold text-text-dark mb-1">Change Password</h3>
-                    <p class="text-sm text-text-gray">Update your account password</p>
-                </div>
-                <i class='bx bx-chevron-right text-2xl text-text-gray group-hover:text-accent transition'></i>
+           class="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition group flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-red-100 flex items-center justify-center group-hover:bg-red-200 transition flex-shrink-0">
+                <i class='bx bx-lock text-base text-feedback-red'></i>
             </div>
+            <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-text-dark text-xs">Change Password</h3>
+                <p class="text-[10px] text-text-gray">Update your account password</p>
+            </div>
+            <i class='bx bx-chevron-right text-base text-text-gray group-hover:text-accent transition'></i>
         </a>
         
         <!-- Profile Settings -->
-        <a href="#" 
-           class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition group opacity-50 cursor-not-allowed">
-            <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-lg bg-primary bg-opacity-10 flex items-center justify-center">
-                    <i class='bx bx-user text-2xl text-primary'></i>
-                </div>
-                <div class="flex-1">
-                    <h3 class="font-semibold text-text-dark mb-1">Profile Settings</h3>
-                    <p class="text-sm text-text-gray">Update your profile information</p>
-                </div>
-                <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Coming Soon</span>
+        <div class="bg-white rounded-lg p-3 shadow-sm opacity-50 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-primary bg-opacity-10 flex items-center justify-center flex-shrink-0">
+                <i class='bx bx-user text-base text-primary'></i>
             </div>
-        </a>
+            <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-text-dark text-xs">Profile Settings</h3>
+                <p class="text-[10px] text-text-gray">Update profile information</p>
+            </div>
+            <span class="text-[9px] bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">Soon</span>
+        </div>
         
         <!-- Account Settings -->
-        <a href="#" 
-           class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition group opacity-50 cursor-not-allowed">
-            <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
-                    <i class='bx bx-cog text-2xl text-blue-600'></i>
-                </div>
-                <div class="flex-1">
-                    <h3 class="font-semibold text-text-dark mb-1">Account Settings</h3>
-                    <p class="text-sm text-text-gray">Manage account preferences</p>
-                </div>
-                <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Coming Soon</span>
+        <div class="bg-white rounded-lg p-3 shadow-sm opacity-50 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                <i class='bx bx-cog text-base text-blue-600'></i>
             </div>
-        </a>
+            <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-text-dark text-xs">Account Settings</h3>
+                <p class="text-[10px] text-text-gray">Manage account preferences</p>
+            </div>
+            <span class="text-[9px] bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">Soon</span>
+        </div>
         
         <!-- Security -->
-        <a href="#" 
-           class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition group opacity-50 cursor-not-allowed">
-            <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center">
-                    <i class='bx bx-shield text-2xl text-purple-600'></i>
-                </div>
-                <div class="flex-1">
-                    <h3 class="font-semibold text-text-dark mb-1">Two-Factor Auth</h3>
-                    <p class="text-sm text-text-gray">Enable additional security</p>
-                </div>
-                <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Coming Soon</span>
+        <div class="bg-white rounded-lg p-3 shadow-sm opacity-50 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
+                <i class='bx bx-shield text-base text-purple-600'></i>
             </div>
-        </a>
+            <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-text-dark text-xs">Two-Factor Auth</h3>
+                <p class="text-[10px] text-text-gray">Enable additional security</p>
+            </div>
+            <span class="text-[9px] bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">Soon</span>
+        </div>
     </div>
+    
+    <!-- Account Info -->
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+        <h2 class="text-xs font-bold text-text-dark mb-2">Account Information</h2>
+        <div class="space-y-2">
+            <div class="flex justify-between items-center py-1.5 border-b border-gray-100">
+                <span class="text-[10px] text-text-gray">Email</span>
+                <span class="text-[10px] font-medium text-text-dark">{{ current_user.email }}</span>
+            </div>
+            <div class="flex justify-between items-center py-1.5 border-b border-gray-100">
+                <span class="text-[10px] text-text-gray">Username</span>
+                <span class="text-[10px] font-medium text-text-dark">{{ current_user.username }}</span>
+            </div>
+            <div class="flex justify-between items-center py-1.5">
+                <span class="text-[10px] text-text-gray">Member Since</span>
+                <span class="text-[10px] font-medium text-text-dark">{{ current_user.created_at.strftime('%b %d, %Y') }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Logout Button -->
+    <a href="{{ url_for('auth.logout') }}" 
+       class="block bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg p-3 shadow-sm text-center font-semibold text-xs hover:shadow-md transition">
+        <i class='bx bx-log-out text-sm mr-1'></i>
+        Logout
+    </a>
 </div>
 {% endblock %}
